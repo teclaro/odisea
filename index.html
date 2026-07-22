@@ -614,6 +614,88 @@ h2{
 .pie .greca{margin-bottom:26px}
 .pie em{color:rgba(241,231,208,.55)}
 
+/* ---------- frisos animados estilo ceramica ---------- */
+.friso{position:relative;margin:2px 0 18px;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#C06030 0%,#A24C1F 100%);border:1px solid rgba(212,169,60,.4)}
+.friso::before,.friso::after{content:"";position:absolute;left:0;right:0;height:9px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='9' viewBox='0 0 18 9'%3E%3Cpath d='M0 8 L0 1 L13 1 L13 5 L8 5 L8 3 L10 3' fill='none' stroke='%23071426' stroke-width='1.4' opacity='.8'/%3E%3C/svg%3E");background-repeat:repeat-x;background-size:18px 9px;z-index:2}
+.friso::before{top:3px}
+.friso::after{bottom:3px}
+.friso svg{width:100%;height:auto;display:block}
+.friso *{transform-box:fill-box}
+
+@keyframes fr-rodar{from{transform:translateX(-24px)}to{transform:translateX(24px)}}
+@keyframes fr-embestir{0%,100%{transform:translateX(0)}50%{transform:translateX(9px)}}
+@keyframes fr-embestir-i{0%,100%{transform:translateX(0)}50%{transform:translateX(-9px)}}
+@keyframes fr-destello{0%,40%,60%,100%{opacity:0}48%,52%{opacity:1}}
+@keyframes fr-flotar{0%{transform:translateY(6px);opacity:0}25%{opacity:.9}100%{transform:translateY(-18px);opacity:0}}
+@keyframes fr-punzar{0%,100%{transform:translateX(0)}55%{transform:translateX(13px)}}
+@keyframes fr-parpado{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.08)}}
+@keyframes fr-viento{0%{transform:translateX(0);opacity:0}20%{opacity:.9}100%{transform:translateX(48px);opacity:0}}
+@keyframes fr-retro{0%,100%{transform:translateX(0) rotate(0)}50%{transform:translateX(-14px) rotate(-4deg)}}
+@keyframes fr-caer{0%{transform:translateY(-28px);opacity:0}12%{opacity:1}76%{transform:translateY(62px);opacity:1}84%{transform:translateY(64px);opacity:0}100%{transform:translateY(64px);opacity:0}}
+@keyframes fr-salpicar{0%,72%,92%,100%{opacity:0}78%,86%{opacity:1}}
+@keyframes fr-brillar{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes fr-brincar{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes fr-ascender{0%{transform:translateY(18px);opacity:0}30%{opacity:.75}100%{transform:translateY(-22px);opacity:0}}
+@keyframes fr-onda-canto{0%,100%{opacity:.15}50%{opacity:.95}}
+@keyframes fr-navegar{from{transform:translateX(-18px)}to{transform:translateX(18px)}}
+@keyframes fr-morder{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(13deg)}}
+@keyframes fr-pastar{0%,100%{transform:rotate(0)}55%{transform:rotate(15deg)}}
+@keyframes fr-relampago{0%,86%,95%,100%{opacity:0}88%,93%{opacity:1}}
+@keyframes fr-olear{from{transform:translateX(0)}to{transform:translateX(-44px)}}
+@keyframes fr-remar{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(8deg)}}
+@keyframes fr-flecha{0%{transform:translateX(0);opacity:0}8%{opacity:1}78%{transform:translateX(238px);opacity:1}84%{opacity:0}100%{transform:translateX(238px);opacity:0}}
+@keyframes fr-tensar{0%,100%{transform:rotate(0)}45%{transform:rotate(-5deg)}}
+
+.escala.abierta .fr-caballo{animation:fr-rodar 8s ease-in-out infinite alternate}
+.escala.abierta .fr-rueda{animation:girar 4s linear infinite}
+.escala.abierta .fr-atacante{animation:fr-embestir 1.5s ease-in-out infinite}
+.escala.abierta .fr-defensor{animation:fr-embestir-i 1.5s ease-in-out infinite;animation-delay:.75s}
+.escala.abierta .fr-choque{animation:fr-destello 1.5s ease-in-out infinite}
+.escala.abierta .fr-comedor{animation:mecer 5s ease-in-out infinite;transform-origin:50% 100%}
+.escala.abierta .fr-petalo{animation:fr-flotar 4s ease-in infinite}
+.escala.abierta .fr-petalo-2{animation-delay:1.3s}
+.escala.abierta .fr-petalo-3{animation-delay:2.6s}
+.escala.abierta .fr-estaca{animation:fr-punzar 1.6s ease-in-out infinite}
+.escala.abierta .fr-ojo-gigante{animation:fr-parpado 4.5s ease-in-out infinite;transform-origin:center}
+.escala.abierta .fr-gigante{animation:mecer 4s ease-in-out infinite;transform-origin:50% 100%}
+.escala.abierta .fr-racha{animation:fr-viento 2.6s ease-out infinite}
+.escala.abierta .fr-racha-2{animation-delay:.9s}
+.escala.abierta .fr-racha-3{animation-delay:1.8s}
+.escala.abierta .fr-nave-retro{animation:fr-retro 3.2s ease-in-out infinite}
+.escala.abierta .fr-roca{animation:fr-caer 2.6s linear infinite}
+.escala.abierta .fr-roca-2{animation-delay:1.3s}
+.escala.abierta .fr-salpica{animation:fr-salpicar 2.6s linear infinite}
+.escala.abierta .fr-salpica-2{animation-delay:1.3s}
+.escala.abierta .fr-vara{animation:fr-tensar 2.4s ease-in-out infinite;transform-origin:0% 100%}
+.escala.abierta .fr-chispa-magia{animation:fr-brillar 1.8s ease-in-out infinite}
+.escala.abierta .fr-chispa-magia-2{animation-delay:.6s}
+.escala.abierta .fr-chispa-magia-3{animation-delay:1.2s}
+.escala.abierta .fr-cerdo{animation:fr-brincar 1.3s ease-in-out infinite}
+.escala.abierta .fr-espectro{animation:fr-ascender 5.5s ease-in-out infinite}
+.escala.abierta .fr-espectro-2{animation-delay:1.8s}
+.escala.abierta .fr-espectro-3{animation-delay:3.6s}
+.escala.abierta .fr-canto{animation:fr-onda-canto 2.2s ease-in-out infinite}
+.escala.abierta .fr-canto-2{animation-delay:.7s}
+.escala.abierta .fr-canto-3{animation-delay:1.4s}
+.escala.abierta .fr-nave-lenta{animation:fr-navegar 9s ease-in-out infinite alternate}
+.escala.abierta .fr-cuello{animation:fr-morder 2s ease-in-out infinite;transform-origin:50% 100%}
+.escala.abierta .fr-cuello-2{animation-delay:.5s}
+.escala.abierta .fr-cuello-3{animation-delay:1s}
+.escala.abierta .fr-espiral-mar{animation:girar 7s linear infinite;transform-origin:center}
+.escala.abierta .fr-vaca-cabeza{animation:fr-pastar 2.8s ease-in-out infinite;transform-origin:15% 30%}
+.escala.abierta .fr-rayos{animation:girar 34s linear infinite;transform-origin:center}
+.escala.abierta .fr-relampago{animation:fr-relampago 5s linear infinite}
+.escala.abierta .fr-palmera{animation:mecer 5s ease-in-out infinite;transform-origin:50% 100%}
+.escala.abierta .fr-olas{animation:fr-olear 3.5s linear infinite}
+.escala.abierta .fr-remo{animation:fr-remar 2.8s ease-in-out infinite;transform-origin:50% 0%}
+.escala.abierta .fr-remo-2{animation-delay:.4s}
+.escala.abierta .fr-remo-3{animation-delay:.8s}
+.escala.abierta .fr-flecha-vuelo{animation:fr-flecha 2.2s cubic-bezier(.3,0,.7,1) infinite}
+.escala.abierta .fr-bob{animation:vaiven 4.5s ease-in-out infinite}
+
+.cambio-idioma{position:fixed;top:14px;right:14px;z-index:70;font-family:var(--display);font-size:12px;letter-spacing:.24em;color:var(--oro);border:1px solid var(--linea);background:rgba(7,20,38,.88);padding:9px 15px;border-radius:999px;text-decoration:none;transition:border-color .2s ease,transform .2s ease}
+.cambio-idioma:hover{border-color:var(--oro);transform:scale(1.05)}
+
 /* ---------- animaciones e interacciones extra ---------- */
 @keyframes surgir{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 .heroe-ojal,.heroe h1,.heroe .sub,.heroe .verso,.cta-heroe{animation:surgir .9s ease both}
@@ -688,6 +770,7 @@ h2{
 </style>
 </head>
 <body>
+<a class="cambio-idioma" href="en.html" aria-label="Read in English">EN</a>
 <!-- ==================== HÉROE ==================== -->
 <header class="heroe">
   <p class="heroe-ojal">Homero &middot; siglo VIII a.&nbsp;C. &middot; 24 cantos</p>
@@ -767,6 +850,7 @@ h2{
           <span class="escala-titulo">Troya y el caballo de madera <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><rect x='342' y='28' width='20' height='68' fill='#071426'/><rect x='338' y='22' width='6' height='8' fill='#071426'/><rect x='350' y='22' width='6' height='8' fill='#071426'/><rect x='360' y='22' width='6' height='8' fill='#071426'/><rect x='372' y='44' width='18' height='52' fill='#071426'/><circle cx='72' cy='48' r='5' fill='#071426'/><path d='M72 53 L64 74' stroke='#071426' stroke-width='6' stroke-linecap='round'/><path d='M64 74 L54 96 M64 74 L70 96' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/><path d='M70 58 L92 62' stroke='#071426' stroke-width='4' stroke-linecap='round'/><g class='fr-caballo'>  <path d='M92 62 L124 58' stroke='#071426' stroke-width='2.5'/>  <rect x='122' y='44' width='72' height='30' rx='7' fill='#071426'/>  <path d='M182 48 L196 24 L206 28 L194 52 Z' fill='#071426'/>  <path d='M196 24 l16 -5 l3 9 l-14 5 Z' fill='#071426'/>  <path d='M122 52 q-12 8 -7 22' stroke='#071426' stroke-width='4' fill='none' stroke-linecap='round'/>  <rect x='128' y='72' width='6' height='16' fill='#071426'/><rect x='150' y='72' width='6' height='16' fill='#071426'/>  <rect x='168' y='72' width='6' height='16' fill='#071426'/><rect x='184' y='72' width='6' height='16' fill='#071426'/>  <g class='fr-rueda'><circle cx='140' cy='90' r='8' fill='none' stroke='#071426' stroke-width='4'/><path d='M140 83V97 M133 90H147' stroke='#071426' stroke-width='2.5'/></g>  <g class='fr-rueda'><circle cx='182' cy='90' r='8' fill='none' stroke='#071426' stroke-width='4'/><path d='M182 83V97 M175 90H189' stroke='#071426' stroke-width='2.5'/></g></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Tras diez a&ntilde;os de asedio, Troya cae gracias al plan de Odiseo: un enorme caballo de madera con soldados escondidos dentro. Terminada la guerra, zarpa rumbo a &Iacute;taca con doce naves y cientos de hombres. Parece un viaje corto. No lo ser&aacute;.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>La guerra misma se narra en otro poema, la Il&iacute;ada. La Odisea empieza cuando todo termin&oacute;: es la historia del regreso.</div>
         </div></div></div>
@@ -779,6 +863,7 @@ h2{
           <span class="escala-titulo">&Iacute;smaro: los c&iacute;cones <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><g class='fr-atacante'>  <circle cx='128' cy='38' r='5.5' fill='#071426'/>  <path d='M128 44 V70' stroke='#071426' stroke-width='6' stroke-linecap='round'/>  <path d='M128 70 L116 96 M128 70 L140 96' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/>  <path d='M116 54 L176 40' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <path d='M176 40 l10 -4 l-3 9 Z' fill='#071426'/>  <circle cx='150' cy='60' r='13' fill='#071426'/><circle cx='150' cy='60' r='4' fill='#E9CC74' opacity='.85'/></g><g class='fr-defensor'>  <circle cx='272' cy='38' r='5.5' fill='#071426'/>  <path d='M272 44 V70' stroke='#071426' stroke-width='6' stroke-linecap='round'/>  <path d='M272 70 L260 96 M272 70 L284 96' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/>  <path d='M284 54 L224 40' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <path d='M224 40 l-10 -4 l3 9 Z' fill='#071426'/>  <circle cx='250' cy='60' r='13' fill='#071426'/><circle cx='250' cy='60' r='4' fill='#E9CC74' opacity='.85'/></g><path class='fr-choque' d='M200 34 l3 9 9 3 -9 3 -3 9 -3 -9 -9 -3 9 -3 Z' fill='#E9CC74'/><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Primera parada y primer error: saquean la ciudad de los c&iacute;cones, aliados de Troya. En vez de partir de inmediato, los hombres se quedan a celebrar; los c&iacute;cones regresan con refuerzos y matan a varios marineros de cada nave.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>El poema deja clara su primera lecci&oacute;n desde el inicio: la arrogancia se paga. Y Odiseo todav&iacute;a no aprende la suya.</div>
         </div></div></div>
@@ -791,6 +876,7 @@ h2{
           <span class="escala-titulo">Los lot&oacute;fagos <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><g class='fr-comedor'>  <circle cx='150' cy='50' r='5.5' fill='#071426'/>  <path d='M141 56 h18 q6 14 -2 24 h-22 q-6 -12 6 -24 Z' fill='#071426'/>  <path d='M158 60 L174 52' stroke='#071426' stroke-width='4' stroke-linecap='round'/>  <path d='M174 52 q4 -6 8 0 q-4 6 -8 0 Z' fill='#E9CC74'/></g><path d='M300 96 V60' stroke='#071426' stroke-width='4' stroke-linecap='round'/><path d='M300 62 q-10 -18 0 -30 q10 12 0 30 Z' fill='#071426'/><path d='M300 62 q-16 -4 -21 -19 q13 1 21 13 Z' fill='#071426'/><path d='M300 62 q16 -4 21 -19 q-13 1 -21 13 Z' fill='#071426'/><path class='fr-petalo' d='M206 82 q4 -8 8 0 q-4 8 -8 0 Z' fill='#E9CC74'/><path class='fr-petalo fr-petalo-2' d='M236 74 q4 -8 8 0 q-4 8 -8 0 Z' fill='#E9CC74'/><path class='fr-petalo fr-petalo-3' d='M262 86 q4 -8 8 0 q-4 8 -8 0 Z' fill='#E9CC74'/><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Una tierra amable donde se come la flor de loto. Quien la prueba olvida su hogar y solo quiere quedarse. Tres exploradores la comen y Odiseo debe arrastrarlos llorando de vuelta a las naves y atarlos a los bancos de remo.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>El verdadero enemigo del viaje aparece aqu&iacute; por primera vez, y no es un monstruo: es el olvido. El peligro de dejar de querer volver.</div>
         </div></div></div>
@@ -803,6 +889,7 @@ h2{
           <span class="escala-titulo">Polifemo, el c&iacute;clope <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><circle cx='96' cy='56' r='5' fill='#071426'/><path d='M96 61 V80' stroke='#071426' stroke-width='6' stroke-linecap='round'/><path d='M96 80 L88 97 M96 80 L104 97' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/><g class='fr-estaca'>  <path d='M104 64 L196 48' stroke='#071426' stroke-width='5' stroke-linecap='round'/>  <circle cx='199' cy='47' r='4' fill='#E9CC74'/></g><g class='fr-gigante'>  <circle cx='300' cy='32' r='15' fill='#071426'/>  <g class='fr-ojo-gigante'><ellipse cx='300' cy='30' rx='6.5' ry='4.2' fill='#E9CC74'/><circle cx='300' cy='30' r='2' fill='#071426'/></g>  <path d='M283 46 h34 l7 50 h-48 Z' fill='#071426'/>  <path d='M316 52 L344 30' stroke='#071426' stroke-width='7' stroke-linecap='round'/>  <circle cx='350' cy='26' r='9' fill='#071426'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Atrapados en la cueva de un gigante de un solo ojo que devora hombres, Odiseo trama la fuga perfecta: lo emborracha, le dice que su nombre es &laquo;Nadie&raquo;, lo ciega con una estaca ardiente y escapa con los suyos colgados bajo las ovejas del reba&ntilde;o.</p>
           <p>Ya a salvo en el mar, la vanidad lo traiciona: grita su nombre verdadero. Polifemo, hijo de Poseid&oacute;n, pide a su padre que Odiseo sufra el mar entero antes de llegar a casa. La maldici&oacute;n que define todo el viaje nace aqu&iacute;.</p>
           <div class="ojo-escena" id="ojo-polifemo" role="button" tabindex="0" aria-label="El ojo de Polifemo: t&oacute;calo para cegarlo">
@@ -830,6 +917,7 @@ h2{
           <span class="escala-titulo">Eolo y la bolsa de los vientos <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><path d='M112 46 q-24 34 16 48 q40 -14 16 -48 q-16 -10 -32 0 Z' fill='#071426'/><path d='M114 45 l-7 -11 M142 45 l7 -11' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/><circle cx='128' cy='40' r='4' fill='#071426'/><path class='fr-racha' d='M172 52 q16 -9 28 0' stroke='#E9CC74' stroke-width='3' fill='none' stroke-linecap='round'/><path class='fr-racha fr-racha-2' d='M168 66 q16 -9 28 0' stroke='#E9CC74' stroke-width='3' fill='none' stroke-linecap='round'/><path class='fr-racha fr-racha-3' d='M172 80 q16 -9 28 0' stroke='#E9CC74' stroke-width='3' fill='none' stroke-linecap='round'/><g class='fr-nave-retro'>  <path d='M272 78 h66 l-10 14 h-46 Z' fill='#071426'/>  <path d='M304 78 V50' stroke='#071426' stroke-width='4'/>  <path d='M304 52 q22 9 3 21 Z' fill='#071426'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>El se&ntilde;or de los vientos les regala un salvoconducto: una bolsa de cuero con todos los vientos adversos encerrados dentro. Navegan nueve d&iacute;as y llegan a ver las fogatas de &Iacute;taca en el horizonte.</p>
           <p>Mientras Odiseo duerme, la tripulaci&oacute;n abre la bolsa convencida de que esconde oro. Los vientos escapan, la tormenta los arrastra de vuelta al punto de partida, y Eolo se niega a ayudar a alguien tan claramente maldito por los dioses.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>Estuvieron tan cerca que ve&iacute;an el humo de sus propias casas. Es el momento m&aacute;s cruel del poema: perderlo todo por desconfianza y codicia.</div>
@@ -843,6 +931,7 @@ h2{
           <span class="escala-titulo">Los lestrigones <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><path d='M0 96 L0 18 L38 34 L54 96 Z' fill='#071426'/><path d='M400 96 L400 18 L362 34 L346 96 Z' fill='#071426'/><circle class='fr-roca' cx='150' cy='22' r='9' fill='#071426'/><circle class='fr-roca fr-roca-2' cx='252' cy='18' r='7' fill='#071426'/><g class='fr-salpica'><path d='M141 90 l-6 -9 M150 88 v-10 M159 90 l6 -9' stroke='#E9CC74' stroke-width='3' stroke-linecap='round'/></g><g class='fr-salpica fr-salpica-2'><path d='M243 90 l-6 -9 M252 88 v-10 M261 90 l6 -9' stroke='#E9CC74' stroke-width='3' stroke-linecap='round'/></g><path d='M186 82 l54 6 l-9 12 l-38 -5 Z' fill='#071426' transform='rotate(-7 213 90)'/><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Una bah&iacute;a perfecta que resulta ser una trampa: los lestrigones son gigantes can&iacute;bales que bombardean la flota con rocas desde los acantilados y arponean a los hombres. Once de las doce naves se hunden con toda su gente.</p>
           <p>Solo escapa la nave de Odiseo, que por precauci&oacute;n hab&iacute;a anclado fuera de la bah&iacute;a. De cientos de hombres queda una sola tripulaci&oacute;n.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>Es la mayor masacre del viaje y dura apenas unas l&iacute;neas del poema. A partir de aqu&iacute;, la historia se vuelve &iacute;ntima: una nave, un pu&ntilde;ado de hombres.</div>
@@ -856,6 +945,7 @@ h2{
           <span class="escala-titulo">Circe, la hechicera <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><circle cx='122' cy='36' r='5.5' fill='#071426'/><path d='M122 42 l-15 54 h30 Z' fill='#071426'/><g class='fr-vara'>  <path d='M128 50 L174 26' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <path class='fr-chispa-magia' d='M176 24 l2.5 7 7 2.5 -7 2.5 -2.5 7 -2.5 -7 -7 -2.5 7 -2.5 Z' fill='#E9CC74'/></g><circle class='fr-chispa-magia fr-chispa-magia-2' cx='206' cy='46' r='3' fill='#E9CC74'/><circle class='fr-chispa-magia fr-chispa-magia-3' cx='224' cy='32' r='2.5' fill='#E9CC74'/><g class='fr-cerdo'>  <ellipse cx='268' cy='82' rx='18' ry='12' fill='#071426'/>  <circle cx='289' cy='77' r='8.5' fill='#071426'/>  <circle cx='296' cy='78' r='3' fill='#E9CC74'/>  <path d='M284 68 l-2 -8 6 5 Z' fill='#071426'/>  <path d='M250 80 q-7 -2 -5 -8' stroke='#071426' stroke-width='3' fill='none' stroke-linecap='round'/>  <rect x='256' y='92' width='5' height='7' fill='#071426'/><rect x='274' y='92' width='5' height='7' fill='#071426'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>En la isla de Eea, la hechicera Circe invita a los exploradores a un banquete y los convierte en cerdos. Odiseo va a rescatarlos armado con una hierba m&aacute;gica, el <em>moly</em>, que le entrega el dios Hermes y que lo hace inmune al hechizo.</p>
           <p>Vencida, Circe devuelve su forma a los hombres y se convierte en aliada: los hospeda durante un a&ntilde;o entero y le revela a Odiseo el paso siguiente, el m&aacute;s oscuro de todos. Para saber c&oacute;mo volver a casa, debe consultar al adivino Tiresias. El problema: Tiresias est&aacute; muerto.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>Circe no es una villana simple: pasa de amenaza a gu&iacute;a. Sin sus instrucciones, Odiseo jam&aacute;s habr&iacute;a sobrevivido a lo que viene.</div>
@@ -868,6 +958,7 @@ h2{
           <span class="escala-titulo">El reino de los muertos <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><circle cx='88' cy='42' r='5.5' fill='#071426'/><path d='M88 48 V74' stroke='#071426' stroke-width='6' stroke-linecap='round'/><path d='M88 74 L79 97 M88 74 L97 97' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/><path d='M94 64 L110 92' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/><path d='M140 96 v-14 M148 96 v-10' stroke='#071426' stroke-width='2.5' stroke-linecap='round'/><g class='fr-espectro'><path d='M176 88 q0 -30 14 -30 t14 30 q-4 -7 -9 0 t-10 0 q-5 -7 -9 0 Z' fill='#071426'/><circle cx='186' cy='66' r='1.8' fill='#E9CC74'/><circle cx='194' cy='66' r='1.8' fill='#E9CC74'/></g><g class='fr-espectro fr-espectro-2'><path d='M238 88 q0 -30 14 -30 t14 30 q-4 -7 -9 0 t-10 0 q-5 -7 -9 0 Z' fill='#071426'/><circle cx='248' cy='66' r='1.8' fill='#E9CC74'/><circle cx='256' cy='66' r='1.8' fill='#E9CC74'/></g><g class='fr-espectro fr-espectro-3'><path d='M300 88 q0 -30 14 -30 t14 30 q-4 -7 -9 0 t-10 0 q-5 -7 -9 0 Z' fill='#071426'/><circle cx='310' cy='66' r='1.8' fill='#E9CC74'/><circle cx='318' cy='66' r='1.8' fill='#E9CC74'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Odiseo navega hasta el borde del mundo y convoca a los esp&iacute;ritus. Tiresias le entrega la profec&iacute;a que ordena el resto del viaje: llegar&aacute; a casa, solo y en nave ajena, si nadie toca el ganado sagrado del Sol.</p>
           <p>Tambi&eacute;n habla con su madre, Anticlea, y descubre que muri&oacute; de pena esper&aacute;ndolo. Y con Aquiles, el gran h&eacute;roe de Troya, que le confiesa que preferir&iacute;a ser el &uacute;ltimo siervo entre los vivos antes que rey de todos los muertos.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>La frase de Aquiles es un giro brutal: el guerrero que eligi&oacute; gloria y muerte joven se arrepiente. Todo el poema defiende lo contrario: la vida, la casa, la vuelta.</div>
@@ -881,6 +972,7 @@ h2{
           <span class="escala-titulo">El canto de las sirenas <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><g class='fr-nave-lenta'>  <path d='M112 80 h72 l-10 13 h-52 Z' fill='#071426'/>  <path d='M148 80 V44' stroke='#071426' stroke-width='4'/>  <rect x='128' y='46' width='40' height='7' fill='#071426'/>  <circle cx='148' cy='56' r='4.5' fill='#071426'/>  <path d='M148 60 V76' stroke='#071426' stroke-width='5' stroke-linecap='round'/>  <path d='M141 64 h14 M141 70 h14' stroke='#E9CC74' stroke-width='2'/></g><path d='M318 96 L340 56 L370 96 Z' fill='#071426'/><ellipse cx='336' cy='66' rx='10' ry='6' fill='#071426'/><circle cx='329' cy='55' r='4.5' fill='#071426'/><path d='M342 62 q10 -8 14 -2' stroke='#071426' stroke-width='3.5' fill='none' stroke-linecap='round'/><ellipse cx='358' cy='58' rx='9' ry='5.5' fill='#071426'/><circle cx='352' cy='48' r='4' fill='#071426'/><path class='fr-canto' d='M312 58 q-18 -8 -34 -2' stroke='#E9CC74' stroke-width='2.5' fill='none' stroke-linecap='round'/><path class='fr-canto fr-canto-2' d='M310 68 q-20 -6 -36 0' stroke='#E9CC74' stroke-width='2.5' fill='none' stroke-linecap='round'/><path class='fr-canto fr-canto-3' d='M314 48 q-16 -10 -32 -6' stroke='#E9CC74' stroke-width='2.5' fill='none' stroke-linecap='round'/><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Su canto promete todo el conocimiento del mundo, y quien lo escucha vira hacia las rocas y muere. Siguiendo el consejo de Circe, Odiseo tapa con cera los o&iacute;dos de sus hombres y ordena que a &eacute;l lo aten al m&aacute;stil, sin soltarlo por mucho que suplique.</p>
           <p>As&iacute; se convierte en el &uacute;nico mortal que escucha a las sirenas y sobrevive para contarlo.</p>
           <button class="boton-canto" id="boton-canto" type="button">
@@ -898,6 +990,7 @@ h2{
           <span class="escala-titulo">Escila y Caribdis <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><path d='M28 96 L46 60 L92 96 Z' fill='#071426'/><g class='fr-cuello'><path d='M58 96 q-6 -32 12 -44' stroke='#071426' stroke-width='7' fill='none' stroke-linecap='round'/><circle cx='72' cy='50' r='6' fill='#071426'/></g><g class='fr-cuello fr-cuello-2'><path d='M80 96 q0 -40 18 -52' stroke='#071426' stroke-width='7' fill='none' stroke-linecap='round'/><circle cx='100' cy='42' r='6' fill='#071426'/></g><g class='fr-cuello fr-cuello-3'><path d='M102 96 q6 -30 24 -38' stroke='#071426' stroke-width='7' fill='none' stroke-linecap='round'/><circle cx='128' cy='56' r='6' fill='#071426'/></g><path class='fr-espiral-mar' d='M330 74 a4 4 0 1 1 4 -4 a9 9 0 1 1 -9 -9 a15 15 0 1 1 15 15 a22 22 0 1 1 -22 -22' stroke='#071426' stroke-width='4' fill='none' stroke-linecap='round'/><g class='fr-bob'>  <path d='M188 78 h52 l-8 12 h-38 Z' fill='#071426'/>  <path d='M214 78 V56' stroke='#071426' stroke-width='3.5'/>  <path d='M214 58 q16 6 2 14 Z' fill='#071426'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Un estrecho con muerte a ambos lados: Escila, monstruo de seis cabezas que habita el acantilado, y Caribdis, un remolino que traga naves enteras. No hay ruta segura; solo se elige c&oacute;mo perder.</p>
           <p>Odiseo pasa cerca de Escila y sacrifica seis hombres, uno por cabeza, para no arriesgar la nave completa en el remolino. Es la decisi&oacute;n m&aacute;s fr&iacute;a del viaje, y la m&aacute;s de capit&aacute;n.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>De aqu&iacute; viene la expresi&oacute;n &laquo;entre Escila y Caribdis&raquo;: elegir entre dos males. La versi&oacute;n griega de &laquo;entre la espada y la pared&raquo;.</div>
@@ -911,6 +1004,7 @@ h2{
           <span class="escala-titulo">Las vacas del Sol <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><g class='fr-rayos'>  <path d='M340 8 V16 M340 44 V52 M318 30 H326 M354 30 H362 M324 14 l6 6 M356 46 l-6 -6 M356 14 l-6 6 M324 46 l6 -6' stroke='#E9CC74' stroke-width='3' stroke-linecap='round'/></g><circle cx='340' cy='30' r='13' fill='#E9CC74'/><polygon class='fr-relampago' points='330,46 318,66 327,66 310,90 334,62 325,62 340,46' fill='#E9CC74'/><rect x='108' y='62' width='60' height='24' rx='9' fill='#071426'/><rect x='114' y='84' width='6' height='14' fill='#071426'/><rect x='130' y='84' width='6' height='14' fill='#071426'/><rect x='146' y='84' width='6' height='14' fill='#071426'/><rect x='158' y='84' width='6' height='14' fill='#071426'/><path d='M108 66 q-9 4 -7 14' stroke='#071426' stroke-width='3' fill='none' stroke-linecap='round'/><g class='fr-vaca-cabeza'>  <path d='M166 66 l18 8' stroke='#071426' stroke-width='7' stroke-linecap='round'/>  <circle cx='192' cy='78' r='8.5' fill='#071426'/>  <path d='M188 70 q-3 -8 3 -10 M196 70 q3 -8 -3 -10' stroke='#071426' stroke-width='3' fill='none' stroke-linecap='round'/></g><path d='M210 96 v-7 M216 96 v-5 M224 96 v-8' stroke='#E9CC74' stroke-width='2.5' stroke-linecap='round' opacity='.8'/><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Varados sin viento en la isla del dios Helios, con la advertencia de Tiresias resonando: no tocar el ganado sagrado. El hambre aprieta durante semanas y, mientras Odiseo duerme, sus hombres sacrifican las mejores vacas.</p>
           <p>El castigo es total: apenas zarpan, Zeus destroza la nave con un rayo. Se ahogan todos. Todos menos uno, aferrado a los restos del m&aacute;stil.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>La profec&iacute;a se cumple con precisi&oacute;n matem&aacute;tica: llegar&aacute; solo. A partir de aqu&iacute;, la Odisea deja de ser la historia de una tripulaci&oacute;n y pasa a ser la de un sobreviviente.</div>
@@ -924,6 +1018,7 @@ h2{
           <span class="escala-titulo">Calipso: siete a&ntilde;os cautivo <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><path d='M52 96 q70 -36 136 0 Z' fill='#071426' opacity='.45'/><g class='fr-palmera'>  <path d='M96 94 q-3 -22 7 -34' stroke='#071426' stroke-width='5' fill='none' stroke-linecap='round'/>  <path d='M103 60 q-14 -8 -22 -2 M103 60 q-2 -14 -12 -16 M103 60 q10 -12 20 -8 M103 60 q14 -2 18 8' stroke='#071426' stroke-width='4' fill='none' stroke-linecap='round'/></g><circle cx='150' cy='58' r='5.5' fill='#071426'/><path d='M143 64 q-9 16 2 24 h13 q7 -12 -2 -24 Z' fill='#071426'/><g class='fr-olas'>  <path d='M158 88 q11 -8 22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0' stroke='#E9CC74' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='.75'/></g><g class='fr-bob'>  <rect x='322' y='74' width='24' height='6' rx='2' fill='#071426'/>  <path d='M334 74 V60' stroke='#071426' stroke-width='3'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>El n&aacute;ufrago llega a Ogigia, la isla de la ninfa Calipso, que se enamora de &eacute;l y lo retiene siete a&ntilde;os. Le ofrece el trato definitivo: qu&eacute;date conmigo y ser&aacute;s inmortal, joven para siempre.</p>
           <p>Odiseo dice que no. Prefiere envejecer y morir junto a Pen&eacute;lope antes que una eternidad lejos de casa. Atenea intercede ante Zeus, Hermes trae la orden de liberarlo, y Odiseo construye una balsa y vuelve al mar que lo odia.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>Aqu&iacute; es donde el poema realmente <em>empieza</em>: el canto quinto abre con Odiseo llorando frente al mar en esta isla. Todo lo anterior se cuenta despu&eacute;s, en flashback.</div>
@@ -937,6 +1032,7 @@ h2{
           <span class="escala-titulo">Los feacios escuchan la historia <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><g class='fr-nave-lenta'>  <path d='M92 72 h188 q12 0 5 9 l-9 11 H106 L92 80 Z' fill='#071426'/>  <path d='M278 72 q18 -8 12 -24' stroke='#071426' stroke-width='5' fill='none' stroke-linecap='round'/>  <path d='M178 72 V38' stroke='#071426' stroke-width='5'/>  <rect x='146' y='40' width='64' height='8' fill='#071426'/>  <circle cx='126' cy='62' r='4.5' fill='#071426'/><path d='M126 66 V74' stroke='#071426' stroke-width='5' stroke-linecap='round'/>  <circle cx='158' cy='62' r='4.5' fill='#071426'/><path d='M158 66 V74' stroke='#071426' stroke-width='5' stroke-linecap='round'/>  <circle cx='216' cy='62' r='4.5' fill='#071426'/><path d='M216 66 V74' stroke='#071426' stroke-width='5' stroke-linecap='round'/>  <path class='fr-remo' d='M126 76 L112 96' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <path class='fr-remo fr-remo-2' d='M158 76 L144 96' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <path class='fr-remo fr-remo-3' d='M216 76 L202 96' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <circle cx='248' cy='66' r='4.5' fill='#071426'/>  <path d='M252 68 h22' stroke='#071426' stroke-width='6' stroke-linecap='round'/></g><g class='fr-olas'>  <path d='M-44 92 q11 -7 22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0 t22 0' stroke='#E9CC74' stroke-width='2.5' fill='none' stroke-linecap='round' opacity='.7'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Poseid&oacute;n destroza la balsa, pero Odiseo alcanza a nado la isla de los feacios, un pueblo de navegantes legendarios. La princesa Nausicaa lo encuentra en la playa, desnudo y deshecho, y lo lleva a la corte de su padre, el rey Alc&iacute;noo.</p>
           <p>All&iacute;, un an&oacute;nimo invitado rompe a llorar cuando un poeta canta sobre Troya. Entonces revela su nombre y narra todas las aventuras que acabas de leer. Conmovidos, los feacios lo colman de regalos y lo llevan dormido, en una de sus naves, hasta &Iacute;taca.</p>
           <div class="dato-cine"><strong>Para contar en el cine</strong>Las aventuras famosas (c&iacute;clope, sirenas, Circe) las conocemos por boca del propio Odiseo, un narrador astuto contando su propia leyenda. &iquest;Cu&aacute;nto habr&aacute; adornado? Homero deja la duda abierta.</div>
@@ -950,6 +1046,7 @@ h2{
           <span class="escala-titulo">&Iacute;taca: el arco y la venganza <span class="escala-flecha" aria-hidden="true"></span></span>
         </button>
         <div class="escala-detalle"><div><div class="escala-cuerpo">
+          <div class='friso' aria-hidden='true'><svg viewBox='0 0 400 110' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid meet'><circle cx='68' cy='46' r='5.5' fill='#071426'/><path d='M68 52 V76' stroke='#071426' stroke-width='6' stroke-linecap='round'/><path d='M68 76 L58 97 M68 76 L78 97' stroke='#071426' stroke-width='4.5' stroke-linecap='round'/><g class='fr-tensar'>  <path d='M84 28 q26 24 0 48' stroke='#071426' stroke-width='4' fill='none' stroke-linecap='round'/>  <path d='M84 28 V76' stroke='#071426' stroke-width='2'/>  <path d='M68 56 L84 50' stroke='#071426' stroke-width='4' stroke-linecap='round'/></g><g class='fr-flecha-vuelo'>  <path d='M88 52 h24' stroke='#071426' stroke-width='3.5' stroke-linecap='round'/>  <polygon points='118,52 109,47.5 109,56.5' fill='#E9CC74'/></g><g>  <rect x='150' y='64' width='5' height='32' fill='#071426'/><circle cx='152' cy='56' r='7' fill='none' stroke='#071426' stroke-width='4'/>  <rect x='212' y='64' width='5' height='32' fill='#071426'/><circle cx='214' cy='56' r='7' fill='none' stroke='#071426' stroke-width='4'/>  <rect x='274' y='64' width='5' height='32' fill='#071426'/><circle cx='276' cy='56' r='7' fill='none' stroke='#071426' stroke-width='4'/>  <rect x='336' y='64' width='5' height='32' fill='#071426'/><circle cx='338' cy='56' r='7' fill='none' stroke='#071426' stroke-width='4'/></g><rect x='0' y='96' width='400' height='2' fill='#071426' opacity='.55'/><rect x='0' y='98' width='400' height='12' fill='#071426' opacity='.28'/></svg></div>
           <p>Veinte a&ntilde;os despu&eacute;s de partir, Odiseo pisa su isla. Atenea lo disfraza de mendigo para que pueda medir qui&eacute;n le fue leal. Se al&iacute;a en secreto con Tel&eacute;maco y con Eumeo, su fiel porquerizo. Su viejo perro, Argos, lo reconoce al instante y muere en paz. Su nodriza Euriclea lo identifica por una cicatriz de infancia.</p>
           <p>Pen&eacute;lope, sin saber qui&eacute;n es el mendigo, anuncia la prueba del arco: se casar&aacute; con quien logre tensar el arco de Odiseo y atravesar de un disparo doce hachas alineadas. Los pretendientes fracasan uno a uno. El mendigo lo tensa como quien afina una lira, dispara, acierta, y junto a Tel&eacute;maco cierra las puertas del sal&oacute;n. La venganza es completa.</p>
           <p>Falta la prueba m&aacute;s dif&iacute;cil: Pen&eacute;lope, prudente tras veinte a&ntilde;os, ordena mover su cama para ver c&oacute;mo reacciona. Odiseo protesta: es imposible, &eacute;l mismo la tall&oacute; sobre un olivo vivo enraizado en la tierra. Solo ellos dos conoc&iacute;an ese secreto. Reci&eacute;n entonces Pen&eacute;lope lo abraza. Atenea sella la paz en la isla.</p>
