@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Índice TACO — ¿cuándo pivotea Trump?</title>
+<meta name="description" content="Réplica no oficial del índice TACO (Trump Always Chickens Out): presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años y S&P 500.">
+<meta name="theme-color" content="#1a1a19">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231a1a19' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
+<style>
+:root{ color-scheme: light dark; }
+.viz-root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])) .viz-root{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  }
+}
+:root[data-theme="dark"] .viz-root{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body.viz-root{
+  background:var(--page); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px 64px}
+header.top{padding:44px 0 8px}
+h1{font-size:clamp(26px,5vw,36px);line-height:1.15;letter-spacing:-.01em}
+.sub{color:var(--ink-2);max-width:64ch;margin-top:10px}
+.sub a{color:inherit}
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:20px; margin-top:20px;
+}
+.card h2{font-size:17px;font-weight:600;margin-bottom:2px}
+.card .hint{font-size:13px;color:var(--muted);margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:24px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.tile .label{font-size:13px;color:var(--ink-2)}
+.tile .value{font-size:34px;font-weight:600;line-height:1.1;margin-top:4px;white-space:nowrap}
+.tile.hero .value{font-size:44px}
+.tile .value .sigma{font-size:.55em;font-weight:500;color:var(--ink-2)}
+.tile .detail{font-size:13px;color:var(--muted);margin-top:4px}
+.tile .key{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:baseline}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;margin-top:8px}
+.status .dot{width:10px;height:10px;border-radius:50%}
+figure{margin:0}
+figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+.chart-box{position:relative}
+.chart-box svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-2);margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.tooltip{
+  position:absolute; pointer-events:none; display:none; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  padding:8px 11px; font-size:13px; min-width:150px;
+}
+.tooltip .tt-date{font-weight:600;margin-bottom:3px}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink-2)}
+.tooltip .tt-row b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+section.prose{margin-top:36px}
+section.prose h2{font-size:20px;margin-bottom:10px}
+section.prose p{color:var(--ink-2);max-width:70ch;margin-bottom:12px}
+section.prose li{color:var(--ink-2);margin:6px 0 6px 22px}
+details{margin-top:20px}
+summary{cursor:pointer;font-weight:600;font-size:15px}
+table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13.5px}
+th,td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:600}
+.msg{padding:28px;text-align:center;color:var(--ink-2)}
+footer{margin-top:44px;font-size:13px;color:var(--muted);border-top:1px solid var(--grid);padding-top:18px}
+footer a{color:var(--ink-2)}
+</style>
+</head>
+<body class="viz-root">
+<div class="wrap">
+
+<header class="top">
+  <h1>🌮 Índice TACO</h1>
+  <p class="sub">Réplica no oficial del indicador de <strong>Signum Global Advisors</strong>
+  (descrito por <a href="https://www.marketwatch.com/story/theres-a-mathematical-formula-to-determining-when-trump-will-taco-and-heres-when-a-pivot-is-expected-3d49a664" rel="noopener">MarketWatch</a>):
+  mide, en desviaciones estándar, la presión de los mercados sobre Trump.
+  Históricamente, los giros de política («TACO»: <em>Trump Always Chickens Out</em>)
+  llegan cuando el movimiento alcanza <strong>2.3–3.4 σ</strong> (promedio <strong>2.9 σ</strong>).</p>
+</header>
+
+<div id="app">
+  <div class="card"><div class="msg">Cargando datos…</div></div>
+</div>
+
+<section class="prose">
+  <h2>Metodología</h2>
+  <p>Para cada variable se calcula el <em>z-score</em> del nivel actual contra la media y
+  desviación estándar móviles de los 60 días hábiles previos, orientado para que un valor
+  positivo signifique presión sobre la Casa Blanca:</p>
+  <ul>
+    <li><strong>Brent</strong> — el alza del crudo presiona (inflación, bencinas).</li>
+    <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
+    <li><strong>S&amp;P 500</strong> — la caída de la bolsa presiona (signo invertido).</li>
+  </ul>
+  <p>El índice es el promedio de los tres z-scores. El modelo original de Signum incluye además
+  los <strong>cruces de tanqueros por el Estrecho de Ormuz</strong>, que no tienen fuente pública
+  gratuita, por lo que aquí se excluyen. Los datos se actualizan cada día hábil tras el cierre
+  de Wall Street vía GitHub Actions (Stooq, con respaldo en Yahoo Finance).</p>
+</section>
+
+<footer>
+  Réplica educativa — no es asesoría de inversión y no está afiliada a Signum Global Advisors
+  ni a MarketWatch. Pivotes históricos marcados: 22 mar 2026 (negociaciones de cese al fuego),
+  7 abr 2026 (aceptación), 18 may 2026 (memorando de entendimiento).
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const FMT = new Intl.NumberFormat("es-CL",{minimumFractionDigits:2,maximumFractionDigits:2});
+const DFMT = new Intl.DateTimeFormat("es-CL",{day:"numeric",month:"short",year:"numeric"});
+const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+const el = (tag,attrs={},parent=null)=>{
+  const ns = "http://www.w3.org/2000/svg";
+  const node = ["svg","g","path","line","rect","circle","text"].includes(tag)
+    ? document.createElementNS(ns,tag) : document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
+  if(parent) parent.appendChild(node);
+  return node;
+};
+const parseDate = s => new Date(s+"T12:00:00");
+
+function statusFor(v,th){
+  if(v>=th.avg) return {txt:"Pivote esperado", color:css("--crit"), icon:"▲"};
+  if(v>=th.low) return {txt:"Acercándose a la zona de pivote", color:css("--warn"), icon:"◆"};
+  return {txt:"Sin señal de pivote", color:css("--good"), icon:"●"};
+}
+
+/* ---- chart genérico de líneas con crosshair + tooltip ---- */
+function lineChart(box, rows, seriesDefs, opts){
+  const W=920, H=340, m={t:16,r:16,b:30,l:44};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const xs = rows.map(r=>parseDate(r.date).getTime());
+  const x0=xs[0], x1=xs[xs.length-1];
+  let vmin=Infinity, vmax=-Infinity;
+  for(const r of rows) for(const s of seriesDefs){
+    const v=r[s.key]; if(v==null) continue;
+    if(v<vmin) vmin=v; if(v>vmax) vmax=v;
+  }
+  if(opts.band){ vmin=Math.min(vmin,-1); vmax=Math.max(vmax,opts.band.high+0.3); }
+  const pad=(vmax-vmin)*0.06; vmin-=pad; vmax+=pad;
+  const X=t=>m.l+(t-x0)/(x1-x0)*iw;
+  const Y=v=>m.t+(vmax-v)/(vmax-vmin)*ih;
+
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":opts.label},box);
+
+  // banda de umbral (wash) + línea de promedio
+  if(opts.band){
+    el("rect",{x:m.l,y:Y(opts.band.high),width:iw,height:Y(opts.band.low)-Y(opts.band.high),
+      fill:css("--crit"),opacity:.08},svg);
+    el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
+      stroke:css("--crit"),"stroke-width":1.5,"stroke-opacity":.55},svg);
+    el("text",{x:m.l+iw-4,y:Y(opts.band.avg)-6,"text-anchor":"end","font-size":11,
+      fill:css("--ink-2")},svg).textContent=`pivote promedio ${opts.band.avg} σ`;
+  }
+
+  // grilla y ejes
+  const step=(vmax-vmin)>4?1:0.5;
+  for(let v=Math.ceil(vmin/step)*step; v<=vmax; v+=step){
+    const y=Y(v);
+    el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--grid"),"stroke-width":1},svg);
+    el("text",{x:m.l-8,y:y+4,"text-anchor":"end","font-size":11,fill:css("--muted"),
+      "font-variant":"tabular-nums"},svg).textContent=(step<1?v.toFixed(1):Math.round(v));
+  }
+  el("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:css("--axis"),"stroke-width":1},svg);
+  const months=new Set();
+  for(const t of xs){
+    const d=new Date(t), k=d.getFullYear()+"-"+d.getMonth();
+    if(months.has(k)) continue; months.add(k);
+    if(d.getDate()>7) continue;
+    el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":11,fill:css("--muted")},svg)
+      .textContent=d.toLocaleDateString("es-CL",{month:"short"});
+  }
+
+  // pivotes históricos
+  let pi=0;
+  for(const p of (opts.pivots||[])){
+    const t=parseDate(p.date).getTime();
+    if(t<x0||t>x1) continue;
+    el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:css("--muted"),
+      "stroke-width":1,"stroke-opacity":.5},svg);
+    el("text",{x:X(t)+4,y:m.t+12+(pi++%2)*13,"font-size":10.5,fill:css("--muted")},svg)
+      .textContent="pivote";
+  }
+
+  // series
+  for(const s of seriesDefs){
+    const d=rows.map((r,i)=>(r[s.key]==null?"":`${i?"L":"M"}${X(xs[i]).toFixed(1)} ${Y(r[s.key]).toFixed(1)}`)).join("");
+    el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2,
+      "stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    const last=rows[rows.length-1];
+    el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
+      stroke:css("--surface"),"stroke-width":2},svg);
+  }
+  // etiqueta directa solo del último punto de la serie principal
+  const main=seriesDefs[0], lastRow=rows[rows.length-1];
+  el("text",{x:m.l+iw-2,y:Y(lastRow[main.key])-10,"text-anchor":"end","font-size":12,
+    "font-weight":600,fill:css("--ink")},svg).textContent=FMT.format(lastRow[main.key]);
+
+  // crosshair + tooltip
+  const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:css("--muted"),"stroke-width":1,
+    "stroke-opacity":0},svg);
+  const dots=seriesDefs.map(s=>el("circle",{r:5,fill:css(s.color),stroke:css("--surface"),
+    "stroke-width":2,opacity:0},svg));
+  const tt=el("div",{class:"tooltip"},box);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const rect=svg.getBoundingClientRect();
+    const px=(ev.clientX-rect.left)*(W/rect.width);
+    const t=x0+(px-m.l)/iw*(x1-x0);
+    let i=0; while(i<xs.length-1 && Math.abs(xs[i+1]-t)<Math.abs(xs[i]-t)) i++;
+    const r=rows[i], cx=X(xs[i]);
+    cross.setAttribute("x1",cx); cross.setAttribute("x2",cx);
+    cross.setAttribute("stroke-opacity",.6);
+    seriesDefs.forEach((s,k)=>{
+      dots[k].setAttribute("cx",cx); dots[k].setAttribute("cy",Y(r[s.key]));
+      dots[k].setAttribute("opacity",1);
+    });
+    tt.style.display="block";
+    tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(r.date))}</div>`+
+      seriesDefs.map(s=>`<div class="tt-row"><span>${s.name}</span><b>${FMT.format(r[s.key])}</b></div>`).join("");
+    const bw=box.clientWidth, ttw=tt.offsetWidth||160;
+    let left=cx/W*bw+14; if(left+ttw>bw-4) left=cx/W*bw-ttw-14;
+    tt.style.left=left+"px";
+    tt.style.top=Math.max(0,(ev.clientY-rect.top)*(H/rect.height)/H*box.clientHeight-40)+"px";
+  });
+  hit.addEventListener("pointerleave",()=>{
+    cross.setAttribute("stroke-opacity",0);
+    dots.forEach(d=>d.setAttribute("opacity",0));
+    tt.style.display="none";
+  });
+}
+
+function render(data){
+  const app=document.getElementById("app");
+  app.innerHTML="";
+  const rows=data.rows, last=rows[rows.length-1], th=data.thresholds;
+  const st=statusFor(last.taco,th);
+
+  // tiles
+  const tiles=el("div",{class:"tiles"},app);
+  const hero=el("div",{class:"tile hero"},tiles);
+  hero.innerHTML=`<div class="label">Índice TACO hoy</div>
+    <div class="value">${FMT.format(last.taco)}<span class="sigma"> σ</span></div>
+    <div class="status"><span class="dot" style="background:${st.color}"></span>${st.icon} ${st.txt}</div>
+    <div class="detail">Umbral de pivote: ${th.low}–${th.high} σ · dato al ${DFMT.format(parseDate(last.date))}</div>`;
+  const comps=[
+    {key:"z_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
+    {key:"z_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--s3", unit:"%"},
+    {key:"z_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
+  ];
+  for(const c of comps){
+    const t=el("div",{class:"tile"},tiles);
+    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name}</div>
+      <div class="value">${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
+      <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}</div>`;
+  }
+
+  // chart principal
+  const card1=el("div",{class:"card"},app);
+  card1.innerHTML=`<h2>Índice compuesto</h2>
+    <div class="hint">Promedio de los tres z-scores (60 días hábiles). La franja roja marca la zona de pivote histórica.</div>`;
+  const fig1=el("figure",{},card1);
+  const box1=el("div",{class:"chart-box"},fig1);
+  lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--ink"}],
+    {label:"Índice TACO en el tiempo",band:th,pivots:data.pivots});
+  el("figcaption",{},fig1).textContent="Las líneas verticales marcan pivotes de política ya observados.";
+
+  // chart de componentes
+  const card2=el("div",{class:"card"},app);
+  card2.innerHTML=`<h2>Componentes</h2>
+    <div class="hint">Cada z-score orientado: positivo = presión sobre Trump.</div>
+    <div class="legend">
+      <span><i style="background:${css("--s2")}"></i>Brent</span>
+      <span><i style="background:${css("--s3")}"></i>Tesoro 10 años</span>
+      <span><i style="background:${css("--s1")}"></i>S&amp;P 500 (inv.)</span>
+    </div>`;
+  const box2=el("div",{class:"chart-box"},el("figure",{},card2));
+  lineChart(box2,rows,[
+    {key:"z_brent",name:"Brent",color:"--s2"},
+    {key:"z_y10",name:"Tesoro 10a",color:"--s3"},
+    {key:"z_spx",name:"S&P 500 (inv.)",color:"--s1"},
+  ],{label:"Componentes del índice TACO",pivots:data.pivots});
+
+  // tabla accesible
+  const det=el("details",{},app);
+  el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
+  const tbl=el("table",{},det);
+  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent σ</th><th>10a σ</th><th>S&P σ</th><th>Brent</th><th>10a %</th><th>S&P 500</th></tr></thead>`;
+  const tb=el("tbody",{},tbl);
+  for(const r of rows.slice(-30).reverse()){
+    const tr=el("tr",{},tb);
+    tr.innerHTML=`<td>${r.date}</td><td>${FMT.format(r.taco)}</td><td>${FMT.format(r.z_brent)}</td>
+      <td>${FMT.format(r.z_y10)}</td><td>${FMT.format(r.z_spx)}</td>
+      <td>${FMT.format(r.brent)}</td><td>${FMT.format(r.y10)}</td><td>${FMT.format(r.spx)}</td>`;
+  }
+  const note=el("p",{class:"detail"},app);
+  note.style.cssText="font-size:13px;color:var(--muted);margin-top:14px";
+  note.textContent=`Actualizado: ${data.updated}. ${data.note}`;
+}
+
+fetch("data/taco.json")
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch(()=>{
+    document.getElementById("app").innerHTML=
+      `<div class="card"><div class="msg">Aún no hay datos. Ejecuta el workflow
+      «Actualizar datos del indice TACO» en GitHub Actions para generar
+      <code>data/taco.json</code>.</div></div>`;
+  });
+
+// re-render al cambiar el tema del sistema (los colores se leen de CSS)
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>location.reload());
+</script>
+</body>
+</html>
