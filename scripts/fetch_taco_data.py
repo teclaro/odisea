@@ -92,11 +92,29 @@ def fetch_series(name, stooq_symbols, yahoo_symbol, d1, d2):
         except Exception as exc:
             print(f"{name}: stooq {sym} fallo: {exc}")
     data = fetch_yahoo(yahoo_symbol, d1, d2)
-    if yahoo_symbol == "^TNX":  # ^TNX viene multiplicado por 10
-        data = {k: v / 10.0 for k, v in data.items()}
     print(f"{name}: yahoo {yahoo_symbol} -> {len(data)} puntos")
     if len(data) < 200:
         raise RuntimeError(f"{name}: datos insuficientes ({len(data)} puntos)")
+    return data
+
+
+def normalize_yield(data):
+    """Lleva el rendimiento a escala porcentual (~1-20).
+
+    Las fuentes difieren en escala: ^TNX de Yahoo viene multiplicado por 10 y
+    algunos simbolos vienen divididos por 10. El z-score es invariante a la
+    escala, pero el nivel mostrado en la pagina debe ser el porcentaje real.
+    """
+    recent = [data[k] for k in sorted(data)[-20:]]
+    m = statistics.median(recent)
+    scale = 1.0
+    while m * scale < 1.0:
+        scale *= 10.0
+    while m * scale > 20.0:
+        scale /= 10.0
+    if scale != 1.0:
+        print(f"y10: escala corregida x{scale:g} (mediana {m:g} -> {m*scale:g}%)")
+        return {k: v * scale for k, v in data.items()}
     return data
 
 
@@ -118,6 +136,7 @@ def main():
 
     raw = {name: fetch_series(name, st, ya, d1, d2)
            for name, (st, ya, _) in SERIES.items()}
+    raw["y10"] = normalize_yield(raw["y10"])
 
     dates = sorted(set.intersection(*(set(s) for s in raw.values())))
     if len(dates) < WINDOW + 30:
