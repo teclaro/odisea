@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Índice TACO — ¿cuándo pivotea Trump?</title>
-<meta name="description" content="Réplica no oficial del índice TACO (Trump Always Chickens Out): presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años y S&P 500.">
+<meta name="description" content="Réplica no oficial del índice TACO (Trump Always Chickens Out): presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años, S&P 500 y cruces por el Estrecho de Ormuz.">
 <meta name="theme-color" content="#1a1a19">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231a1a19' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
 <style>
@@ -14,7 +14,7 @@
   --page:#f9f9f7; --surface:#fcfcfb;
   --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
   --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
 }
 @media (prefers-color-scheme: dark){
@@ -23,7 +23,7 @@
     --page:#0d0d0d; --surface:#1a1a19;
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
   }
 }
 :root[data-theme="dark"] .viz-root{
@@ -31,7 +31,7 @@
   --page:#0d0d0d; --surface:#1a1a19;
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body.viz-root{
@@ -116,11 +116,15 @@ footer a{color:var(--ink-2)}
     <li><strong>Brent</strong> — el alza del crudo presiona (inflación, bencinas).</li>
     <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
     <li><strong>S&amp;P 500</strong> — la caída de la bolsa presiona (signo invertido).</li>
+    <li><strong>Cruces por el Estrecho de Ormuz</strong> — la caída del tránsito presiona
+    (signo invertido). Fuente: <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a>
+    (FMI + Oxford, datos AIS satelitales), suavizado con promedio móvil de 7 días.
+    PortWatch actualiza semanalmente, así que este componente llega con unos días de
+    rezago y se arrastra el último valor conocido.</li>
   </ul>
-  <p>El índice es el promedio de los tres z-scores. El modelo original de Signum incluye además
-  los <strong>cruces de tanqueros por el Estrecho de Ormuz</strong>, que no tienen fuente pública
-  gratuita, por lo que aquí se excluyen. Los datos se actualizan cada día hábil tras el cierre
-  de Wall Street vía GitHub Actions (Stooq, con respaldo en Yahoo Finance).</p>
+  <p>El índice es el promedio de los z-scores disponibles (los cuatro cuando PortWatch
+  responde; los tres de mercado si no). Los datos se actualizan cada día hábil tras el
+  cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en Yahoo Finance).</p>
 </section>
 
 <footer>
@@ -274,18 +278,20 @@ function render(data){
     {key:"z_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
     {key:"z_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--s3", unit:"%"},
     {key:"z_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
-  ];
+    {key:"z_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--s4", unit:" naves/día"},
+  ].filter(c=>last[c.key]!=null);
   for(const c of comps){
     const t=el("div",{class:"tile"},tiles);
     t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name}</div>
       <div class="value">${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
-      <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}</div>`;
+      <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${
+        c.key==="z_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
   }
 
   // chart principal
   const card1=el("div",{class:"card"},app);
   card1.innerHTML=`<h2>Índice compuesto</h2>
-    <div class="hint">Promedio de los tres z-scores (60 días hábiles). La franja roja marca la zona de pivote histórica.</div>`;
+    <div class="hint">Promedio de los z-scores orientados (ventana de 60 días hábiles). La franja roja marca la zona de pivote histórica.</div>`;
   const fig1=el("figure",{},card1);
   const box1=el("div",{class:"chart-box"},fig1);
   lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--ink"}],
@@ -296,29 +302,28 @@ function render(data){
   const card2=el("div",{class:"card"},app);
   card2.innerHTML=`<h2>Componentes</h2>
     <div class="hint">Cada z-score orientado: positivo = presión sobre Trump.</div>
-    <div class="legend">
-      <span><i style="background:${css("--s2")}"></i>Brent</span>
-      <span><i style="background:${css("--s3")}"></i>Tesoro 10 años</span>
-      <span><i style="background:${css("--s1")}"></i>S&amp;P 500 (inv.)</span>
-    </div>`;
+    <div class="legend">${comps.map(c=>
+      `<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
-  lineChart(box2,rows,[
-    {key:"z_brent",name:"Brent",color:"--s2"},
-    {key:"z_y10",name:"Tesoro 10a",color:"--s3"},
-    {key:"z_spx",name:"S&P 500 (inv.)",color:"--s1"},
-  ],{label:"Componentes del índice TACO",pivots:data.pivots});
+  lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
+    {label:"Componentes del índice TACO",pivots:data.pivots});
 
   // tabla accesible
   const det=el("details",{},app);
   el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
   const tbl=el("table",{},det);
-  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent σ</th><th>10a σ</th><th>S&P σ</th><th>Brent</th><th>10a %</th><th>S&P 500</th></tr></thead>`;
+  const hasHz=last.z_hormuz!=null;
+  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent σ</th><th>10a σ</th><th>S&P σ</th>${
+    hasHz?"<th>Ormuz σ</th>":""}<th>Brent</th><th>10a %</th><th>S&P 500</th>${
+    hasHz?"<th>Ormuz</th>":""}</tr></thead>`;
   const tb=el("tbody",{},tbl);
+  const fmt=v=>v==null?"—":FMT.format(v);
   for(const r of rows.slice(-30).reverse()){
     const tr=el("tr",{},tb);
-    tr.innerHTML=`<td>${r.date}</td><td>${FMT.format(r.taco)}</td><td>${FMT.format(r.z_brent)}</td>
-      <td>${FMT.format(r.z_y10)}</td><td>${FMT.format(r.z_spx)}</td>
-      <td>${FMT.format(r.brent)}</td><td>${FMT.format(r.y10)}</td><td>${FMT.format(r.spx)}</td>`;
+    tr.innerHTML=`<td>${r.date}</td><td>${fmt(r.taco)}</td><td>${fmt(r.z_brent)}</td>
+      <td>${fmt(r.z_y10)}</td><td>${fmt(r.z_spx)}</td>${hasHz?`<td>${fmt(r.z_hormuz)}</td>`:""}
+      <td>${fmt(r.brent)}</td><td>${fmt(r.y10)}</td><td>${fmt(r.spx)}</td>${
+      hasHz?`<td>${fmt(r.hormuz)}</td>`:""}`;
   }
   const note=el("p",{class:"detail"},app);
   note.style.cssText="font-size:13px;color:var(--muted);margin-top:14px";
