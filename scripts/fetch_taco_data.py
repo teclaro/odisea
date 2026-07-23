@@ -137,7 +137,14 @@ def fetch_hormuz(d1):
             ts, n = a.get("date"), a.get(count_field)
             if ts is None or n is None:
                 continue
-            out[date.fromtimestamp(ts / 1000).isoformat()] = float(n)
+            # ArcGIS entrega la fecha como epoch (ms o s) o como texto ISO
+            if isinstance(ts, (int, float)):
+                key = date.fromtimestamp(ts / 1000 if ts > 1e11 else ts).isoformat()
+            else:
+                key = str(ts)[:10]
+                if len(key) != 10 or key[4] != "-":
+                    continue
+            out[key] = float(n)
         if not data.get("exceededTransferLimit") and len(feats) < 1000:
             break
         offset += len(feats)
