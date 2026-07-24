@@ -20,6 +20,10 @@ body{
   --border:#E2E8F0;
   --destructive:#EF4444; --amber:#F59E0B; --green:#22C55E;
   --c1:#3B82F6; --c2:#1A3A5B; --c3:#0EA5E9; --c4:#14B8A6;
+  --chart-surface:var(--card); --chart-ink:var(--primary);
+  --chart-muted:var(--muted); --chart-muted2:var(--muted);
+  --chart-grid:var(--border); --chart-axis:var(--border);
+  --chart-danger:var(--destructive); --chart-good:var(--green); --chart-accent:var(--accent);
   background:var(--bg); color:var(--text);
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
@@ -196,159 +200,19 @@ footer a{color:#fff}
 
 </div>
 
+<script src="taco-core.js"></script>
 <script>
 "use strict";
-const FMT = new Intl.NumberFormat("es-CL",{minimumFractionDigits:2,maximumFractionDigits:2});
-const DFMT = new Intl.DateTimeFormat("es-CL",{day:"numeric",month:"short",year:"numeric"});
-const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
-const el = (tag,attrs={},parent=null)=>{
-  const ns = "http://www.w3.org/2000/svg";
-  const node = ["svg","defs","pattern","g","path","line","rect","circle","text"].includes(tag)
-    ? document.createElementNS(ns,tag) : document.createElement(tag);
-  for(const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
-  if(parent) parent.appendChild(node);
-  return node;
-};
-const parseDate = s => new Date(s+"T12:00:00");
-const tagText = (svg,attrs,text,pad=3)=>{
-  const t=el("text",attrs,svg); t.textContent=text;
-  const bb=t.getBBox();
-  const bg=el("rect",{x:bb.x-pad,y:bb.y-pad,width:bb.width+pad*2,height:bb.height+pad*2,
-    fill:css("--card")});
-  svg.insertBefore(bg,t);
-  return t;
-};
+const {css, el, parseDate, createFormatters, attachSeriesHighlight, lineChart} = TacoCore;
+const {FMT, DFMT} = createFormatters("es-CL");
 
 function statusFor(v,th){
   if(v>=th.avg) return {cls:"alert", tag:"Alerta", txt:"Pivote esperado", color:css("--destructive")};
   if(v>=th.low) return {cls:"caution", tag:"Precaución", txt:"Acercándose a la zona de pivote", color:css("--amber")};
   return {cls:"nominal", tag:"Nominal", txt:"Sin señal de pivote", color:css("--green")};
 }
-
-/* ---- gráfico de líneas con crosshair + tooltip ---- */
-function lineChart(box, rows, seriesDefs, opts){
-  const W=920, H=340, m={t:16,r:16,b:30,l:44};
-  const iw=W-m.l-m.r, ih=H-m.t-m.b;
-  const xs = rows.map(r=>parseDate(r.date).getTime());
-  const x0=xs[0], x1=xs[xs.length-1];
-  let vmin=Infinity, vmax=-Infinity;
-  for(const r of rows) for(const s of seriesDefs){
-    const v=r[s.key]; if(v==null) continue;
-    if(v<vmin) vmin=v; if(v>vmax) vmax=v;
-  }
-  if(opts.band){ vmin=Math.min(vmin,-1); vmax=Math.max(vmax,opts.band.high+0.3); }
-  const pad=(vmax-vmin)*0.06; vmin-=pad; vmax+=pad;
-  const X=t=>m.l+(t-x0)/(x1-x0)*iw;
-  const Y=v=>m.t+(vmax-v)/(vmax-vmin)*ih;
-
-  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":opts.label},box);
-
-  if(opts.band){
-    el("rect",{x:m.l,y:Y(opts.band.high),width:iw,height:Y(opts.band.low)-Y(opts.band.high),
-      fill:css("--destructive"),opacity:.08},svg);
-    el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
-      stroke:css("--destructive"),"stroke-width":1.5,"stroke-opacity":.6,"stroke-dasharray":"5 3"},svg);
-    tagText(svg,{x:m.l+4,y:Y(opts.band.avg)-7,"text-anchor":"start","font-size":10.5,
-      fill:css("--muted")},`Promedio de pivote: ${opts.band.avg}σ`);
-  }
-
-  const range=vmax-vmin;
-  const step=range>20?5:range>8?2:range>4?1:0.5;
-  for(let v=Math.ceil(vmin/step)*step; v<=vmax; v+=step){
-    const y=Y(v);
-    el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--border"),"stroke-width":1},svg);
-    el("text",{x:m.l-8,y:y+4,"text-anchor":"end","font-size":10.5,fill:css("--muted"),
-      "font-family":"Space Mono, monospace"},svg).textContent=(step<1?v.toFixed(1):Math.round(v));
-  }
-  el("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:css("--border"),"stroke-width":1.5},svg);
-  const months=new Set();
-  for(const t of xs){
-    const d=new Date(t), k=d.getFullYear()+"-"+d.getMonth();
-    if(months.has(k)) continue; months.add(k);
-    if(d.getDate()>7) continue;
-    el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":10.5,fill:css("--muted")},svg)
-      .textContent=d.toLocaleDateString("es-CL",{month:"short"}).replace(".","");
-  }
-
-  const pivotPts=[];
-  for(const p of (opts.pivots||[])){
-    const t=parseDate(p.date).getTime();
-    if(t<x0||t>x1) continue;
-    const c=css(p.type==="hawkish"?"--destructive":"--green");
-    el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:c,"stroke-width":1,"stroke-opacity":.5},svg);
-    el("circle",{cx:X(t),cy:m.t+5,r:4,fill:c,stroke:css("--card"),"stroke-width":2},svg);
-    pivotPts.push({x:X(t),p,c});
-  }
-
-  const seriesEls={};
-  for(const s of seriesDefs){
-    const d=rows.map((r,i)=>(r[s.key]==null?"":`${i?"L":"M"}${X(xs[i]).toFixed(1)} ${Y(r[s.key]).toFixed(1)}`)).join("");
-    const path=el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2.25,class:"hl-line",
-      "data-key":s.key,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
-    const last=rows[rows.length-1];
-    const endDot=el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
-      class:"hl-line","data-key":s.key,stroke:css("--card"),"stroke-width":2},svg);
-    seriesEls[s.key]={path,endDot};
-  }
-  const main=seriesDefs[0], lastRow=rows[rows.length-1];
-  tagText(svg,{x:m.l+iw-2,y:Y(lastRow[main.key])-10,"text-anchor":"end","font-size":12,
-    "font-weight":700,fill:css("--primary"),"font-family":"Space Mono, monospace"},
-    `${FMT.format(lastRow[main.key])}σ`,4);
-
-  const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:css("--accent"),"stroke-width":1,"stroke-opacity":0},svg);
-  const dots=seriesDefs.map(s=>el("circle",{r:5,fill:css("--accent"),stroke:css("--card"),
-    "stroke-width":2,opacity:0},svg));
-  const tt=el("div",{class:"tooltip"},box);
-  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent","data-role":"hit"},svg);
-  hit.addEventListener("pointermove",ev=>{
-    const rect=svg.getBoundingClientRect();
-    const px=(ev.clientX-rect.left)*(W/rect.width);
-    const t=x0+(px-m.l)/iw*(x1-x0);
-    let i=0; while(i<xs.length-1 && Math.abs(xs[i+1]-t)<Math.abs(xs[i]-t)) i++;
-    const r=rows[i], cx=X(xs[i]);
-    cross.setAttribute("x1",cx); cross.setAttribute("x2",cx);
-    cross.setAttribute("stroke-opacity",.5);
-    seriesDefs.forEach((s,k)=>{
-      dots[k].setAttribute("cx",cx); dots[k].setAttribute("cy",Y(r[s.key]));
-      dots[k].setAttribute("opacity",1);
-    });
-    tt.classList.add("is-visible");
-    tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(r.date))}</div>`+
-      seriesDefs.map(s=>`<div class="tt-row"><span>${s.name}</span><b>${FMT.format(r[s.key])}</b></div>`).join("");
-    const bw=box.clientWidth, ttw=tt.offsetWidth||160;
-    let left=cx/W*bw+14; if(left+ttw>bw-4) left=cx/W*bw-ttw-14;
-    tt.style.left=left+"px";
-    tt.style.top=Math.max(0,(ev.clientY-rect.top)*(H/rect.height)/H*box.clientHeight-40)+"px";
-  });
-  hit.addEventListener("pointerleave",()=>{
-    cross.setAttribute("stroke-opacity",0);
-    dots.forEach(d=>d.setAttribute("opacity",0));
-    tt.classList.remove("is-visible");
-  });
-  for(const {x,p,c} of pivotPts){
-    const pr=el("rect",{x:x-8,y:m.t,width:16,height:ih,fill:"transparent","data-role":"pivot"},svg);
-    pr.style.cursor="help";
-    const show=ev=>{
-      cross.setAttribute("stroke-opacity",0);
-      dots.forEach(d=>d.setAttribute("opacity",0));
-      tt.classList.add("is-visible");
-      tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(p.date))}</div>
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
-          <span style="width:8px;height:8px;border-radius:50%;background:${c};flex:none"></span>
-          <b style="color:var(--text)">${p.type==="hawkish"?"Hawkish (endurece)":"Dovish (se ablanda)"}</b></div>
-        <div style="color:var(--muted);max-width:230px">${p.label||""}</div>`;
-      const bw=box.clientWidth, ttw=tt.offsetWidth||190;
-      let left=x/W*bw+14; if(left+ttw>bw-4) left=x/W*bw-ttw-14;
-      tt.style.left=left+"px";
-      const rect=svg.getBoundingClientRect();
-      tt.style.top=Math.max(0,(ev.clientY-rect.top)/rect.height*box.clientHeight-44)+"px";
-    };
-    pr.addEventListener("pointerenter",show);
-    pr.addEventListener("pointermove",show);
-    pr.addEventListener("pointerleave",()=>{tt.classList.remove("is-visible");});
-  }
-  return {seriesEls};
-}
+const monthLabel = d => d.toLocaleDateString("es-CL",{month:"short"}).replace(".","");
+const pivotLabel = type => type==="hawkish" ? "Hawkish (endurece)" : "Dovish (se ablanda)";
 
 function deltaTag(rows,i,key,invert){
   if(i<1) return "";
@@ -400,8 +264,12 @@ function render(data){
     <div class="hint">Z ponderado contra la línea base fija del 7-mar-2026, como lo define Signum. La franja marca la zona de pivote histórica.</div>`;
   const fig1=el("figure",{},card1);
   const box1=el("div",{class:"chart-box"},fig1);
-  lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--c2"}],
-    {label:"Índice TACO en el tiempo",band:th,pivots:data.pivots});
+  lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--c2"}],{
+    FMT,DFMT,label:"Índice TACO en el tiempo",
+    band:{...th,pattern:"soft",text:`Promedio de pivote: ${th.avg}σ`},
+    pivots:data.pivots,pivotLabel,eventLabel:p=>p.label||"",monthLabel,
+    valueTag:v=>`${FMT.format(v)}σ`,
+  });
   el("figcaption",{},fig1).textContent="Verticales: pivotes observados — verde dovish (se ablanda), rojo hawkish (endurece). Pasa el mouse para ver la noticia.";
 
   const card2=el("div",{class:"card"},app);
@@ -409,36 +277,15 @@ function render(data){
     <div class="hint">Aporte ponderado de cada componente (peso × z): positivo = presión sobre Trump. La suma de los cuatro es el índice.</div>
     <div class="legend">${comps.map(c=>`<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
-  const chart2=lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
-    {label:"Componentes del índice TACO",pivots:data.pivots});
-
-  const allKeys=Object.keys(chart2.seriesEls);
-  const highlight=key=>{
-    for(const k of allKeys){
-      const {path,endDot}=chart2.seriesEls[k];
-      const on=k===key;
-      path.setAttribute("stroke-width",on?3.5:2.25);
-      path.classList.toggle("hl-dim",!on);
-      endDot.classList.toggle("hl-dim",!on);
-    }
-  };
-  const clearHighlight=()=>{
-    for(const k of allKeys){
-      const {path,endDot}=chart2.seriesEls[k];
-      path.setAttribute("stroke-width",2.25);
-      path.classList.remove("hl-dim"); endDot.classList.remove("hl-dim");
-    }
-  };
-  for(const {key,el:tileEl} of compTiles){
-    tileEl.addEventListener("pointerenter",()=>{tileEl.classList.add("is-active"); highlight(key);});
-    tileEl.addEventListener("pointerleave",()=>{tileEl.classList.remove("is-active"); clearHighlight();});
-  }
-  const legendSpans=[...card2.querySelectorAll(".legend span")];
-  comps.forEach((c,idx)=>{
-    const span=legendSpans[idx]; if(!span) return;
-    span.addEventListener("pointerenter",()=>{span.classList.add("is-active"); highlight(c.key);});
-    span.addEventListener("pointerleave",()=>{span.classList.remove("is-active"); clearHighlight();});
+  const chart2=lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),{
+    FMT,DFMT,label:"Componentes del índice TACO",pivots:data.pivots,
+    pivotLabel,eventLabel:p=>p.label||"",monthLabel,
+    valueTag:v=>`${FMT.format(v)}σ`,
   });
+
+  const legendSpans=[...card2.querySelectorAll(".legend span")];
+  const targets=[...compTiles, ...comps.map((c,idx)=>({key:c.key,el:legendSpans[idx]})).filter(t=>t.el)];
+  attachSeriesHighlight(chart2.seriesEls, targets, {onWidth:3.5, offWidth:2.25, recolor:null});
 
   const det=el("details",{},app);
   el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
