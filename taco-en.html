@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TACO Index — when will Trump chicken out?</title>
 <meta name="description" content="TACO Index (Trump Always Chickens Out), based on Signum Global Advisors: market pressure measured in standard deviations using Brent, the 10-year Treasury, the S&P 500 and Strait of Hormuz transits.">
-<meta name="theme-color" content="#1a1a19">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231a1a19' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%230a0a0a' width='48' height='48'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
 <link rel="alternate" hreflang="es" href="taco.html">
 <link rel="alternate" hreflang="en" href="taco-en.html">
 <meta property="og:type" content="website">
@@ -15,158 +15,172 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{ color-scheme: light dark; }
-.viz-root{
-  color-scheme: light;
-  --page:#f9f9f7; --surface:#fcfcfb;
-  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
-  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
-  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
-}
-@media (prefers-color-scheme: dark){
-  :root:where(:not([data-theme="light"])) .viz-root{
-    color-scheme: dark;
-    --page:#0d0d0d; --surface:#1a1a19;
-    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
-    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-  }
-}
-:root[data-theme="dark"] .viz-root{
-  color-scheme: dark;
-  --page:#0d0d0d; --surface:#1a1a19;
-  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
-  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
-}
-html{scroll-behavior:smooth}
+:root{ color-scheme: dark; }
 *{box-sizing:border-box;margin:0;padding:0}
-body.viz-root{
-  background:
-    repeating-radial-gradient(circle at 0 0, rgba(127,127,127,.035) 0, transparent 1.4px),
-    var(--page);
-  background-size:5px 5px, auto;
-  color:var(--ink);
-  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+body{
+  --bg:#0a0a0a; --panel:#111112; --panel2:#161715;
+  --fg:#eaeaea; --dim:#8a8a88; --dim2:#5a5a57;
+  --line:#2a2a28; --line2:#4a4a46;
+  --red:#ff2a2a; --green:#4af626;
+  background:var(--bg); color:var(--fg);
+  font-family:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  position:relative;
 }
+/* barrido CRT */
+body::before{
+  content:""; position:fixed; inset:0; z-index:80; pointer-events:none;
+  background:repeating-linear-gradient(0deg,
+    rgba(255,255,255,0) 0, rgba(255,255,255,0) 2px,
+    rgba(255,255,255,.02) 2px, rgba(255,255,255,.02) 3px);
+}
+em,i{font-style:normal;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--dim2)}
+code{background:var(--panel2);padding:2px 6px;border:1px solid var(--line);font-size:.95em}
 .skip-link{
   position:absolute; left:-9999px; top:auto; z-index:100;
-  background:var(--ink); color:var(--page); padding:10px 16px; border-radius:8px;
-  font-weight:600; text-decoration:none;
+  background:var(--red); color:#0a0a0a; padding:10px 16px;
+  font-weight:700; text-decoration:none; text-transform:uppercase; letter-spacing:.08em;
 }
 .skip-link:focus{left:20px; top:20px}
-.wrap{max-width:960px;margin:0 auto;padding:0 20px 64px}
-header.top{padding:44px 0 8px}
-h1{font-size:clamp(26px,5vw,36px);font-weight:700;line-height:1.15;letter-spacing:-.015em}
-.sub{color:var(--ink-2);max-width:64ch;margin-top:10px;text-wrap:pretty}
-.sub a{color:var(--ink);text-underline-offset:3px;text-decoration-color:var(--border);transition:text-decoration-color .18s ease}
-.sub a:hover{text-decoration-color:currentColor}
-.card{
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:14px; padding:20px; margin-top:20px;
-  transition:border-color .2s ease, box-shadow .2s ease;
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px 64px}
+header.top{padding:44px 0 22px;border-bottom:2px solid var(--line)}
+.eyebrow{
+  display:block;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--red);margin-bottom:12px;
 }
-.card:hover{border-color:var(--axis); box-shadow:0 8px 28px -12px rgba(0,0,0,.22)}
-.card h2{font-size:17px;font-weight:600;margin-bottom:2px;letter-spacing:-.005em}
-.card .hint{font-size:13px;color:var(--muted);margin-bottom:14px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:24px}
-.tile{
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;
-  border-left:3px solid transparent; transition:background-color .18s ease, border-color .18s ease;
+h1{
+  font-family:"Archivo Black",system-ui,sans-serif;
+  font-size:clamp(2.2rem,8vw,5rem);
+  line-height:.92; letter-spacing:-.02em; text-transform:uppercase;
+  margin-bottom:18px;
 }
-.tile.hero{
-  background:linear-gradient(180deg, color-mix(in srgb, var(--tile-accent,var(--muted)) 7%, var(--surface)), var(--surface));
-  border-left-color:var(--tile-accent,var(--border));
+.sub{color:var(--dim);max-width:72ch;font-size:13px;letter-spacing:.01em}
+.sub strong{color:var(--fg)}
+.sub a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--red);text-underline-offset:3px}
+.sub a:hover{color:var(--red)}
+
+.card{background:var(--panel);border:1px solid var(--line);padding:22px;margin-top:20px;transition:border-color .15s linear}
+.card:hover{border-color:var(--line2)}
+.card h2{
+  font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--fg);margin-bottom:6px;
 }
-.tile.can-hover{cursor:default}
-.tile.can-hover:hover, .tile.can-hover.is-active{
-  background:color-mix(in srgb, var(--s,var(--muted)) 8%, var(--surface));
-  border-left-color:var(--s,var(--border));
+.card h2::before{content:"[ ";color:var(--line2)}
+.card h2::after{content:" ]";color:var(--line2)}
+.card .hint{font-size:12px;color:var(--dim);margin-bottom:18px;letter-spacing:.01em}
+
+.tiles{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);margin-top:24px;
 }
-.tile .label{font-size:13px;color:var(--ink-2);letter-spacing:.005em}
-.tile .value{font-size:34px;font-weight:700;line-height:1.1;margin-top:4px;white-space:nowrap;font-variant-numeric:proportional-nums}
+.tile{background:var(--panel);padding:18px 20px}
+.tile.hero{background:var(--panel2);border-left:3px solid var(--tile-accent,var(--line2))}
+.tile .label{font-size:10.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+.tile .value{
+  font-family:"Archivo Black",system-ui,sans-serif;
+  font-size:32px;line-height:1;margin-top:10px;white-space:nowrap;
+}
 .tile.hero .value{font-size:44px}
-.tile .value .sigma{font-size:.55em;font-weight:500;color:var(--ink-2)}
-.tile .detail{font-size:13px;color:var(--muted);margin-top:4px}
-.tile .key{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:baseline}
-.status{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;margin-top:8px}
-.status .dot{width:10px;height:10px;border-radius:50%}
+.tile .value .sigma{font-size:.5em;color:var(--dim);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.tile .detail{font-size:11.5px;color:var(--dim);margin-top:10px;letter-spacing:.01em}
+.status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-top:12px;letter-spacing:.06em;text-transform:uppercase}
+.status .dot{width:8px;height:8px;background:currentColor;flex:none}
+.tile.can-hover{cursor:default;transition:background-color .1s linear,border-color .1s linear}
+.tile.can-hover:hover,.tile.can-hover.is-active{background:#1a1b19;border-left:3px solid var(--red)}
+
 figure{margin:0}
-figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+figcaption{font-size:11px;color:var(--dim2);margin-top:14px;letter-spacing:.02em}
 .chart-box{position:relative}
 .chart-box svg{display:block;width:100%;height:auto}
-.chart-box .hl-line{transition:stroke-width .15s ease, opacity .15s ease}
-.chart-box .hl-dim{opacity:.25}
-.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-2);margin-bottom:10px}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
-.tooltip{
-  position:absolute; pointer-events:none; z-index:5;
-  background:var(--surface); border:1px solid var(--border); border-radius:9px;
-  box-shadow:0 10px 28px -6px rgba(0,0,0,.28), 0 2px 8px -2px rgba(0,0,0,.18);
-  padding:8px 11px; font-size:13px; min-width:150px;
-  opacity:0; visibility:hidden; transform:translateY(2px);
-  transition:opacity .12s ease, transform .12s ease;
+.chart-box .hl-line{transition:opacity .12s linear}
+.chart-box .hl-dim{opacity:.15}
+
+.legend{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:18px}
+.legend span{
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--line);padding:5px 10px;cursor:default;
+  transition:color .12s linear,border-color .12s linear;
 }
-.tooltip.is-visible{opacity:1; visibility:visible; transform:translateY(0)}
-.tooltip .tt-date{font-weight:600;margin-bottom:3px}
-.tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink-2)}
-.tooltip .tt-row b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.legend span.is-active,.legend span:hover{color:var(--fg);border-color:var(--fg)}
+
+.tooltip{
+  position:absolute;pointer-events:none;z-index:5;
+  background:var(--panel);border:1px solid var(--fg);
+  box-shadow:4px 4px 0 var(--red);
+  padding:10px 12px;font-size:12px;min-width:150px;
+  opacity:0;visibility:hidden;transition:opacity .1s linear;
+}
+.tooltip.is-visible{opacity:1;visibility:visible}
+.tooltip .tt-date{
+  font-weight:700;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:1px solid var(--line);padding-bottom:6px;
+}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em;font-size:11px}
+.tooltip .tt-row+.tt-row{margin-top:3px}
+.tooltip .tt-row b{color:var(--fg);font-weight:700}
+
 section.prose{margin-top:36px}
-section.prose h2{font-size:20px;margin-bottom:10px;letter-spacing:-.005em}
-section.prose p{color:var(--ink-2);max-width:70ch;margin-bottom:12px;text-wrap:pretty}
-section.prose li{color:var(--ink-2);margin:6px 0 6px 22px}
-section.prose a{color:var(--ink);text-underline-offset:3px;transition:color .18s ease}
-section.prose a:hover{color:var(--s1,var(--ink))}
-details{margin-top:20px}
-summary{cursor:pointer;font-weight:600;font-size:15px;transition:color .18s ease;width:fit-content}
-summary:hover{color:var(--s1,var(--ink))}
-table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13.5px}
-th,td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
+section.prose h2{
+  font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--line);
+}
+section.prose p{color:var(--dim);max-width:76ch;margin-bottom:14px;font-size:13px}
+section.prose li{color:var(--dim);margin:8px 0 8px 20px;font-size:13px}
+section.prose strong{color:var(--fg)}
+section.prose a{color:var(--fg);text-decoration-color:var(--red);text-underline-offset:3px}
+section.prose a:hover{color:var(--red)}
+
+details{margin-top:24px;border:1px solid var(--line)}
+summary{
+  cursor:pointer;font-weight:700;font-size:12px;padding:14px 16px;
+  text-transform:uppercase;letter-spacing:.1em;list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"[+] ";color:var(--red)}
+details[open] summary::before{content:"[-] "}
+summary:hover{color:var(--red)}
+table{border-collapse:collapse;width:100%;font-size:11px}
+th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
-thead th{color:var(--ink-2);font-weight:600;border-bottom:2px solid var(--axis)}
-tbody tr{transition:background-color .12s ease}
-tbody tr:hover{background:color-mix(in srgb, var(--ink) 4%, transparent)}
-.msg{padding:28px;text-align:center;color:var(--ink-2)}
-.skeleton{padding:20px}
-.skel{background:linear-gradient(90deg, var(--grid) 25%, var(--border) 37%, var(--grid) 63%);
-  background-size:400% 100%; animation:skel-pulse 1.6s ease-in-out infinite; border-radius:8px}
-@keyframes skel-pulse{0%{background-position:100% 0}100%{background-position:0 0}}
-.foot-note{font-size:13px;color:var(--muted);margin-top:14px;text-wrap:pretty}
-footer{margin-top:44px;font-size:13px;color:var(--muted);border-top:1px solid var(--grid);padding-top:18px;text-wrap:pretty}
-footer a{color:var(--ink-2);transition:color .18s ease}
-footer a:hover{color:var(--ink)}
+thead th{
+  color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:2px solid var(--line2);background:var(--panel2);
+}
+tbody tr{transition:background-color .1s linear}
+tbody tr:hover{background:var(--panel2)}
+.msg{padding:28px;text-align:center;color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.loading{padding:28px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.loading .blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.foot-note{font-size:11px;color:var(--dim2);margin-top:18px;letter-spacing:.02em}
+footer{margin-top:44px;font-size:11px;color:var(--dim2);border-top:2px solid var(--line);padding-top:20px;letter-spacing:.02em}
+footer a{color:var(--dim)}
+footer a:hover{color:var(--fg)}
 @media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  .skel{animation:none}
-  .card,.tile,.tooltip,.chart-box .hl-line,tbody tr,summary,a{transition:none}
+  .loading .blink{animation:none}
+  .card,.tile,.tooltip,.legend span,.chart-box .hl-line,tbody tr{transition:none}
+  body::before{display:none}
 }
 </style>
 </head>
-<body class="viz-root">
+<body>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="wrap">
 
 <header class="top">
-  <h1>🌮 TACO Index</h1>
-  <p class="sub">Based on <strong>Signum Global Advisors</strong>:
-  it measures, in standard deviations, how much pressure markets are putting on Trump.
-  Historically, policy U-turns ("TACO": <em>Trump Always Chickens Out</em>)
-  arrive once the move reaches <strong>2.3–3.4 σ</strong> (average <strong>2.9 σ</strong>).
-  <a href="taco.html" lang="es">Versión en español</a></p>
+  <span class="eyebrow">&gt;&gt;&gt; Signum Global Advisors // Hormuz TACO Index</span>
+  <h1>TACO Index</h1>
+  <p class="sub">Based on <strong>Signum Global Advisors</strong>: it measures, in standard
+  deviations, how much pressure markets are putting on Trump. Historically, policy U-turns
+  ("TACO": <em>Trump Always Chickens Out</em>) arrive once the move reaches <strong>2.3–3.4 σ</strong>
+  (average <strong>2.9 σ</strong>). <a href="taco.html" lang="es">Versión en español</a></p>
 </header>
 
 <main id="main">
 <div id="app">
-  <div class="card skeleton" aria-live="polite" aria-busy="true">
-    <div class="skel" style="height:13px;width:140px;margin-bottom:10px"></div>
-    <div class="skel" style="height:38px;width:110px;margin-bottom:8px"></div>
-    <div class="skel" style="height:13px;width:200px"></div>
-  </div>
+  <div class="loading" aria-live="polite" aria-busy="true">&gt; Loading data<span class="blink">_</span></div>
 </div>
 
 <section class="prose">
@@ -213,18 +227,27 @@ const DFMT = new Intl.DateTimeFormat("en-US",{day:"numeric",month:"short",year:"
 const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
 const el = (tag,attrs={},parent=null)=>{
   const ns = "http://www.w3.org/2000/svg";
-  const node = ["svg","g","path","line","rect","circle","text"].includes(tag)
+  const node = ["svg","defs","pattern","g","path","line","rect","circle","text"].includes(tag)
     ? document.createElementNS(ns,tag) : document.createElement(tag);
   for(const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
   if(parent) parent.appendChild(node);
   return node;
 };
 const parseDate = s => new Date(s+"T12:00:00");
+// texto SVG con placa de fondo solida (legible sobre cualquier trazo detras)
+const tagText = (svg,attrs,text,pad=3)=>{
+  const t=el("text",attrs,svg); t.textContent=text;
+  const bb=t.getBBox();
+  const bg=el("rect",{x:bb.x-pad,y:bb.y-pad,width:bb.width+pad*2,height:bb.height+pad*2,
+    fill:css("--panel")});
+  svg.insertBefore(bg,t);
+  return t;
+};
 
 function statusFor(v,th){
-  if(v>=th.avg) return {txt:"Pivot expected", color:css("--crit"), icon:"▲"};
-  if(v>=th.low) return {txt:"Approaching the pivot zone", color:css("--warn"), icon:"◆"};
-  return {txt:"No pivot signal", color:css("--good"), icon:"●"};
+  if(v>=th.avg) return {tag:"ALERT", txt:"Pivot expected", color:css("--red")};
+  if(v>=th.low) return {tag:"CAUTION", txt:"Approaching the pivot zone", color:css("--red")};
+  return {tag:"NOMINAL", txt:"No pivot signal", color:css("--green")};
 }
 
 /* ---- chart genérico de líneas con crosshair + tooltip ---- */
@@ -245,14 +268,20 @@ function lineChart(box, rows, seriesDefs, opts){
 
   const svg = el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":opts.label},box);
 
-  // banda de umbral (wash) + línea de promedio
+  // banda de umbral (rayado de peligro) + línea de promedio
   if(opts.band){
+    const defs=el("defs",{},svg);
+    const patId="hz"+Math.random().toString(36).slice(2,8);
+    const pat=el("pattern",{id:patId,width:9,height:9,patternUnits:"userSpaceOnUse",
+      patternTransform:"rotate(45)"},defs);
+    el("rect",{width:9,height:9,fill:"transparent"},pat);
+    el("line",{x1:0,y1:0,x2:0,y2:9,stroke:css("--red"),"stroke-width":4,"stroke-opacity":.3},pat);
     el("rect",{x:m.l,y:Y(opts.band.high),width:iw,height:Y(opts.band.low)-Y(opts.band.high),
-      fill:css("--crit"),opacity:.08},svg);
+      fill:`url(#${patId})`},svg);
     el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
-      stroke:css("--crit"),"stroke-width":1.5,"stroke-opacity":.55},svg);
-    el("text",{x:m.l+iw-4,y:Y(opts.band.avg)-6,"text-anchor":"end","font-size":11,
-      fill:css("--ink-2")},svg).textContent=`avg pivot ${opts.band.avg} σ`;
+      stroke:css("--red"),"stroke-width":1.5},svg);
+    tagText(svg,{x:m.l+4,y:Y(opts.band.avg)-7,"text-anchor":"start","font-size":10.5,
+      "letter-spacing":".06em",fill:css("--dim")},`[ AVG PIVOT ${opts.band.avg}σ ]`);
   }
 
   // grilla y ejes
@@ -260,18 +289,19 @@ function lineChart(box, rows, seriesDefs, opts){
   const step=range>20?5:range>8?2:range>4?1:0.5;
   for(let v=Math.ceil(vmin/step)*step; v<=vmax; v+=step){
     const y=Y(v);
-    el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--grid"),"stroke-width":1},svg);
-    el("text",{x:m.l-8,y:y+4,"text-anchor":"end","font-size":11,fill:css("--muted"),
-      "font-variant":"tabular-nums"},svg).textContent=(step<1?v.toFixed(1):Math.round(v));
+    el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--line"),"stroke-width":1},svg);
+    el("text",{x:m.l-8,y:y+4,"text-anchor":"end","font-size":10.5,fill:css("--dim2")},svg)
+      .textContent=(step<1?v.toFixed(1):Math.round(v));
   }
-  el("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:css("--axis"),"stroke-width":1},svg);
+  el("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:css("--line2"),"stroke-width":1},svg);
   const months=new Set();
   for(const t of xs){
     const d=new Date(t), k=d.getFullYear()+"-"+d.getMonth();
     if(months.has(k)) continue; months.add(k);
     if(d.getDate()>7) continue;
-    el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":11,fill:css("--muted")},svg)
-      .textContent=d.toLocaleDateString("en-US",{month:"short"});
+    el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":10.5,fill:css("--dim2"),
+      "letter-spacing":".04em"},svg)
+      .textContent=d.toLocaleDateString("en-US",{month:"short"}).replace(".","").toUpperCase();
   }
 
   // pivotes históricos
@@ -279,11 +309,10 @@ function lineChart(box, rows, seriesDefs, opts){
   for(const p of (opts.pivots||[])){
     const t=parseDate(p.date).getTime();
     if(t<x0||t>x1) continue;
-    const c=css(p.type==="hawkish"?"--crit":"--good");
+    const c=css(p.type==="hawkish"?"--red":"--green");
     el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:c,
-      "stroke-width":1,"stroke-opacity":.45},svg);
-    el("circle",{cx:X(t),cy:m.t+5,r:4,fill:c,stroke:css("--surface"),
-      "stroke-width":2},svg);
+      "stroke-width":1,"stroke-opacity":.55},svg);
+    el("rect",{x:X(t)-3,y:m.t+1,width:6,height:6,fill:c},svg);
     pivotPts.push({x:X(t),p,c});
   }
 
@@ -294,22 +323,23 @@ function lineChart(box, rows, seriesDefs, opts){
     const path=el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2,class:"hl-line",
       "data-key":s.key,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
     const last=rows[rows.length-1];
-    const endDot=el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
-      class:"hl-line","data-key":s.key,stroke:css("--surface"),"stroke-width":2},svg);
+    const endDot=el("rect",{x:X(xs[xs.length-1])-3.5,y:Y(last[s.key])-3.5,width:7,height:7,
+      fill:css(s.color),class:"hl-line","data-key":s.key,stroke:css("--panel"),
+      "stroke-width":1.5},svg);
     seriesEls[s.key]={path,endDot};
   }
   // etiqueta directa solo del último punto de la serie principal
   const main=seriesDefs[0], lastRow=rows[rows.length-1];
-  el("text",{x:m.l+iw-2,y:Y(lastRow[main.key])-10,"text-anchor":"end","font-size":12,
-    "font-weight":600,fill:css("--ink")},svg).textContent=FMT.format(lastRow[main.key]);
+  tagText(svg,{x:m.l+iw-2,y:Y(lastRow[main.key])-10,"text-anchor":"end","font-size":12,
+    "font-weight":700,fill:css("--fg")},`[ ${FMT.format(lastRow[main.key])}σ ]`,4);
 
   // crosshair + tooltip
-  const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:css("--muted"),"stroke-width":1,
+  const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:css("--red"),"stroke-width":1,
     "stroke-opacity":0},svg);
-  const dots=seriesDefs.map(s=>el("circle",{r:5,fill:css(s.color),stroke:css("--surface"),
-    "stroke-width":2,opacity:0},svg));
+  const dots=seriesDefs.map(s=>el("rect",{width:7,height:7,fill:css("--red"),stroke:css("--panel"),
+    "stroke-width":1.5,opacity:0},svg));
   const tt=el("div",{class:"tooltip"},box);
-  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent"},svg);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent","data-role":"hit"},svg);
   hit.addEventListener("pointermove",ev=>{
     const rect=svg.getBoundingClientRect();
     const px=(ev.clientX-rect.left)*(W/rect.width);
@@ -319,7 +349,7 @@ function lineChart(box, rows, seriesDefs, opts){
     cross.setAttribute("x1",cx); cross.setAttribute("x2",cx);
     cross.setAttribute("stroke-opacity",.6);
     seriesDefs.forEach((s,k)=>{
-      dots[k].setAttribute("cx",cx); dots[k].setAttribute("cy",Y(r[s.key]));
+      dots[k].setAttribute("x",cx-3.5); dots[k].setAttribute("y",Y(r[s.key])-3.5);
       dots[k].setAttribute("opacity",1);
     });
     tt.classList.add("is-visible");
@@ -336,17 +366,17 @@ function lineChart(box, rows, seriesDefs, opts){
     tt.classList.remove("is-visible");
   });
   for(const {x,p,c} of pivotPts){
-    const pr=el("rect",{x:x-8,y:m.t,width:16,height:ih,fill:"transparent"},svg);
+    const pr=el("rect",{x:x-8,y:m.t,width:16,height:ih,fill:"transparent","data-role":"pivot"},svg);
     pr.style.cursor="help";
     const show=ev=>{
       cross.setAttribute("stroke-opacity",0);
       dots.forEach(d=>d.setAttribute("opacity",0));
       tt.classList.add("is-visible");
       tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(p.date))}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
-          <span style="width:8px;height:8px;border-radius:50%;background:${c}"></span>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+          <span style="width:7px;height:7px;background:${c};flex:none"></span>
           <b>${p.type==="hawkish"?"Hawkish (hardening)":"Dovish (softening)"}</b></div>
-        <div style="color:var(--ink-2);max-width:230px">${p.label_en||p.label||""}</div>`;
+        <div style="color:var(--dim);max-width:230px;text-transform:none;letter-spacing:normal">${p.label_en||p.label||""}</div>`;
       const bw=box.clientWidth, ttw=tt.offsetWidth||190;
       let left=x/W*bw+14; if(left+ttw>bw-4) left=x/W*bw-ttw-14;
       tt.style.left=left+"px";
@@ -375,19 +405,18 @@ function render(data){
   hero.style.setProperty("--tile-accent",st.color);
   hero.innerHTML=`<div class="label">TACO Index today</div>
     <div class="value">${FMT.format(last.taco)}<span class="sigma"> σ</span></div>
-    <div class="status"><span class="dot" style="background:${st.color}"></span>${st.icon} ${st.txt}</div>
+    <div class="status"><span class="dot" style="background:${st.color}"></span>${st.tag} · ${st.txt}</div>
     <div class="detail">Pivot threshold: ${th.low}–${th.high} σ · as of ${DFMT.format(parseDate(last.date))}</div>`;
   const comps=[
-    {key:"c_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
-    {key:"c_y10",   lvl:"y10",   name:"10-Year Treasury", color:"--s3", unit:"%"},
-    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (inverted)", color:"--s1", unit:""},
-    {key:"c_hormuz",lvl:"hormuz",name:"Hormuz crossings (inverted)", color:"--s4", unit:" ships/day"},
+    {key:"c_brent", lvl:"brent", name:"Brent",  color:"--dim", unit:" US$"},
+    {key:"c_y10",   lvl:"y10",   name:"10-Year Treasury", color:"--dim", unit:"%"},
+    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (inverted)", color:"--dim", unit:""},
+    {key:"c_hormuz",lvl:"hormuz",name:"Hormuz crossings (inverted)", color:"--dim", unit:" ships/day"},
   ].filter(c=>last[c.key]!=null);
   const compTiles=[];
   for(const c of comps){
     const t=el("div",{class:"tile can-hover"},tiles);
-    t.style.setProperty("--s",css(c.color));
-    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name} · contribution</div>
+    t.innerHTML=`<div class="label">[ ${c.name} ] · contribution</div>
       <div class="value">${last[c.key]>0?"+":""}${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
       <div class="detail">Level: ${FMT.format(last[c.lvl])}${c.unit}${
         c.key==="c_hormuz"&&data.hormuz_today
@@ -400,10 +429,10 @@ function render(data){
   // chart principal
   const card1=el("div",{class:"card"},app);
   card1.innerHTML=`<h2>Composite index</h2>
-    <div class="hint">Weighted z-score against the fixed 7-Mar-2026 baseline, as defined by Signum. The red band marks the historical pivot zone.</div>`;
+    <div class="hint">Weighted z-score against the fixed 7-Mar-2026 baseline, as defined by Signum. The hazard band marks the historical pivot zone.</div>`;
   const fig1=el("figure",{},card1);
   const box1=el("div",{class:"chart-box"},fig1);
-  lineChart(box1,rows,[{key:"taco",name:"TACO Index",color:"--ink"}],
+  lineChart(box1,rows,[{key:"taco",name:"TACO Index",color:"--fg"}],
     {label:"TACO Index over time",band:th,pivots:data.pivots});
   el("figcaption",{},fig1).textContent="Verticals: observed pivots — green dovish (softening), red hawkish (hardening). Hover for the news.";
 
@@ -411,20 +440,20 @@ function render(data){
   const card2=el("div",{class:"card"},app);
   card2.innerHTML=`<h2>Components</h2>
     <div class="hint">Each component&#39;s weighted contribution (weight × z): positive = pressure on Trump. The four sum to the index.</div>
-    <div class="legend">${comps.map(c=>
-      `<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
+    <div class="legend">${comps.map(c=>`<span>[ ${c.name} ]</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
   const chart2=lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
     {label:"TACO Index components",pivots:data.pivots});
 
-  // hover en un tile resalta su línea en el gráfico de componentes
+  // hover en un tile o etiqueta resalta su línea en el gráfico de componentes
   const allKeys=Object.keys(chart2.seriesEls);
   const highlight=key=>{
     for(const k of allKeys){
       const {path,endDot}=chart2.seriesEls[k];
       const on=k===key;
+      path.setAttribute("stroke",on?css("--fg"):css("--dim"));
       path.setAttribute("stroke-width",on?3:2);
-      endDot.setAttribute("stroke-width",on?3:2);
+      endDot.setAttribute("fill",on?css("--red"):css("--dim"));
       path.classList.toggle("hl-dim",!on);
       endDot.classList.toggle("hl-dim",!on);
     }
@@ -432,7 +461,8 @@ function render(data){
   const clearHighlight=()=>{
     for(const k of allKeys){
       const {path,endDot}=chart2.seriesEls[k];
-      path.setAttribute("stroke-width",2); endDot.setAttribute("stroke-width",2);
+      path.setAttribute("stroke",css("--dim")); path.setAttribute("stroke-width",2);
+      endDot.setAttribute("fill",css("--dim"));
       path.classList.remove("hl-dim"); endDot.classList.remove("hl-dim");
     }
   };
@@ -440,6 +470,12 @@ function render(data){
     tileEl.addEventListener("pointerenter",()=>{tileEl.classList.add("is-active"); highlight(key);});
     tileEl.addEventListener("pointerleave",()=>{tileEl.classList.remove("is-active"); clearHighlight();});
   }
+  const legendSpans=[...card2.querySelectorAll(".legend span")];
+  comps.forEach((c,i)=>{
+    const span=legendSpans[i]; if(!span) return;
+    span.addEventListener("pointerenter",()=>{span.classList.add("is-active"); highlight(c.key);});
+    span.addEventListener("pointerleave",()=>{span.classList.remove("is-active"); clearHighlight();});
+  });
 
   // tabla accesible
   const det=el("details",{},app);
@@ -448,7 +484,7 @@ function render(data){
   const hasHz=last.c_hormuz!=null;
   tbl.innerHTML=`<thead><tr><th>Date</th><th>TACO σ</th><th>Brent</th><th>10y</th><th>S&P</th>${
     hasHz?"<th>Hormuz</th>":""}<th>Brent US$</th><th>10y %</th><th>S&P 500</th>${
-    hasHz?"<th>Hormuz s/d</th>":""}</tr></thead>`;
+    hasHz?"<th>Hormuz n/a</th>":""}</tr></thead>`;
   const tb=el("tbody",{},tbl);
   const fmt=v=>v==null?"—":FMT.format(v);
   for(const r of rows.slice(-30).reverse()){
@@ -467,13 +503,10 @@ fetch("data/taco.json")
   .then(render)
   .catch(()=>{
     document.getElementById("app").innerHTML=
-      `<div class="card"><div class="msg">No data yet. Run the
+      `<div class="card"><div class="msg">[ no data ] Run the
       "Actualizar datos del indice TACO" workflow in GitHub Actions to generate
       <code>data/taco.json</code>.</div></div>`;
   });
-
-// re-render al cambiar el tema del sistema (los colores se leen de CSS)
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>location.reload());
 </script>
 </body>
 </html>
