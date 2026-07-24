@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Genera data/taco.json con el indice TACO.
 
-Replica no oficial del "TACO index" de Signum Global Advisors descrito por
-MarketWatch (jul 2026): mide, en desviaciones estandar, la presion de mercado
-que historicamente precede un giro de politica de Trump (umbral 2.3-3.4 sigma,
-promedio 2.9).
+Replica del "Hormuz TACO Index" de Signum Global Advisors (grafico publico,
+jul 2026): mide, en desviaciones estandar, la presion de mercado que
+historicamente precede un giro de politica de Trump (umbral 2.3-3.4 sigma,
+promedio 2.9). Signum lo define como "weighted z-score from 7-Mar baseline":
+z-score de cada variable contra una linea base FIJA (7-mar-2026, inicio de la
+guerra), con sigma de los 60 dias habiles previos, y promedio ponderado. Los
+pesos no son publicos: se calibraron por minimos cuadrados contra los 7 puntos
+anotados en el grafico publicado (ECM ~0.35 sigma).
 
 Variables:
   - Brent (alza = presion)
@@ -20,9 +24,10 @@ Variables:
     conocido. Si ambas fuentes fallan, el indice usa los otros tres
     componentes.
 
-Para cada serie se calcula el z-score del nivel actual contra la media y
-desviacion estandar moviles de los WINDOW dias habiles previos, orientado para
-que positivo = presion. El indice es el promedio de los tres z-scores.
+Para cada serie: z_t = orientacion * (x_t - x_base) / sigma, con x_base el
+nivel del ultimo dia habil <= BASELINE_DATE y sigma la desviacion estandar de
+los WINDOW dias habiles previos a la base. Positivo = presion sobre Trump.
+Indice = suma ponderada (WEIGHTS) de los z disponibles.
 
 Solo usa la libreria estandar; fuentes: Stooq (CSV) con respaldo en Yahoo
 Finance (JSON). Pensado para correr en GitHub Actions.
@@ -39,8 +44,11 @@ import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
 
-WINDOW = 60          # dias habiles para media/desviacion movil
-HISTORY_DAYS = 900   # calendario: suficiente para ventana + ~2 anos de indice
+WINDOW = 60          # dias habiles para la sigma de la linea base
+BASELINE_DATE = "2026-03-07"   # linea base fija de Signum (7-mar)
+ROWS_FROM = "2026-03-02"       # el grafico de Signum cubre el episodio (guerra) desde marzo
+WEIGHTS = {"brent": 0.52, "y10": 0.22, "spx": 0.05, "hormuz": 1.13}
+HISTORY_DAYS = 900   # calendario: suficiente para la ventana previa a la base
 OUTPUT = Path(__file__).resolve().parent.parent / "data" / "taco.json"
 
 SERIES = {
@@ -56,9 +64,12 @@ HORMUZ_ID = "chokepoint6"
 LLOYDS_URL = "https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
 
 PIVOTS = [
-    {"date": "2026-03-22", "label": "Giro hacia negociaciones de cese al fuego"},
-    {"date": "2026-04-07", "label": "Aceptacion del cese al fuego"},
-    {"date": "2026-05-18", "label": "Memorando de entendimiento"},
+    {"date": "2026-03-22", "type": "dovish", "label": "Trump acepta dialogar"},
+    {"date": "2026-04-07", "type": "dovish", "label": "Aceptacion del cese al fuego"},
+    {"date": "2026-05-18", "type": "dovish", "label": "Trump frena ataque para negociar"},
+    {"date": "2026-05-29", "type": "hawkish", "label": "Trump exige cambios al borrador del MoU"},
+    {"date": "2026-06-11", "type": "dovish", "label": "Trump apura la firma del MoU"},
+    {"date": "2026-07-07", "type": "hawkish", "label": "EE.UU. retira el waiver petrolero"},
 ]
 
 
@@ -254,16 +265,16 @@ def normalize_yield(data):
     return data
 
 
-def rolling_z(values, window):
-    """z-score de values[i] contra los `window` valores previos (sin incluirlo)."""
-    zs = [None] * len(values)
-    for i in range(window, len(values)):
-        prev = values[i - window:i]
-        mean = statistics.fmean(prev)
-        sd = statistics.pstdev(prev)
-        if sd > 1e-12:
-            zs[i] = (values[i] - mean) / sd
-    return zs
+def fixed_z(values, bi, direction):
+    """z-score contra la linea base fija: (x - x[bi]) / sigma(ventana previa)."""
+    ref = values[bi]
+    win = [v for v in values[max(0, bi - WINDOW):bi] if v is not None]
+    if ref is None or len(win) < 20:
+        raise RuntimeError("historia insuficiente antes de la linea base")
+    sd = statistics.pstdev(win)
+    if sd <= 1e-12:
+        raise RuntimeError("desviacion estandar nula en la ventana base")
+    return [None if v is None else direction * (v - ref) / sd for v in values]
 
 
 def main():
@@ -279,10 +290,16 @@ def main():
         raise RuntimeError(f"Solo {len(dates)} fechas comunes entre las series")
 
     levels = {name: [raw[name][d] for d in dates] for name in SERIES}
+
+    base_dates = [d for d in dates if d <= BASELINE_DATE]
+    if not base_dates:
+        raise RuntimeError("sin datos hasta la fecha de la linea base")
+    bi = dates.index(base_dates[-1])
+    print(f"linea base: {dates[bi]} (sigma de {WINDOW} dias previos)")
+
     zs = {}
     for name, (_, _, direction) in SERIES.items():
-        zs[name] = [None if z is None else direction * z
-                    for z in rolling_z(levels[name], WINDOW)]
+        zs[name] = fixed_z(levels[name], bi, direction)
 
     # Cuarto componente: cruces por Ormuz (Lloyd's List + PortWatch), opcional
     components = list(SERIES)
@@ -312,12 +329,8 @@ def main():
                 lastv = hz[hz_days[j]]
                 j += 1
             ff.append(lastv)
-        first = next((i for i, v in enumerate(ff) if v is not None), len(ff))
-        z_h = [None] * len(dates)
-        for k, z in enumerate(rolling_z(ff[first:], WINDOW)):
-            z_h[first + k] = None if z is None else -1 * z
         levels["hormuz"] = ff
-        zs["hormuz"] = z_h
+        zs["hormuz"] = fixed_z(ff, bi, -1)
         components.append("hormuz")
     except Exception as exc:
         print(f"hormuz: excluido de esta corrida ({exc})")
@@ -326,34 +339,36 @@ def main():
 
     rows = []
     for i, d in enumerate(dates):
-        market = [zs[name][i] for name in SERIES]
-        if any(z is None for z in market):
+        if d < ROWS_FROM:
             continue
-        comps = list(market)
         row = {
             "date": d,
             **{f"z_{name}": round(zs[name][i], 3) for name in SERIES},
             **{name: round(levels[name][i], 3) for name in SERIES},
         }
         if "hormuz" in components and zs["hormuz"][i] is not None:
-            comps.append(zs["hormuz"][i])
             row["z_hormuz"] = round(zs["hormuz"][i], 3)
             row["hormuz"] = round(levels["hormuz"][i], 1)
-        row["taco"] = round(statistics.fmean(comps), 3)
+        taco = sum(WEIGHTS[n] * zs[n][i]
+                   for n in components if zs[n][i] is not None)
+        row["taco"] = round(taco, 3)
         rows.append(row)
 
     payload = {
         "updated": d2.isoformat(),
         "window": WINDOW,
+        "baseline": dates[bi],
+        "weights": WEIGHTS,
         "thresholds": {"low": 2.3, "avg": 2.9, "high": 3.4},
         "pivots": PIVOTS,
         "components": components,
         "hormuz_last": hormuz_last,
         "hormuz_sources": hormuz_sources,
         "hormuz_today": hormuz_today,
-        "note": ("Replica no oficial del indice TACO de Signum Global Advisors. "
-                 "Cruces por Ormuz: Lloyd's List Intelligence (diario) empalmado "
-                 "con IMF PortWatch (historia/respaldo), promedio movil 7d. "
+        "note": ("Replica no oficial del Hormuz TACO Index de Signum Global "
+                 "Advisors: z ponderado contra linea base fija del 7-mar-2026, "
+                 "pesos calibrados contra su grafico publicado. Ormuz: Lloyd's "
+                 "List (diario) + IMF PortWatch (respaldo), promedio movil 7d. "
                  "Solo con fines educativos; no es asesoria de inversion."),
         "rows": rows,
     }
