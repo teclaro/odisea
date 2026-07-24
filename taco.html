@@ -117,10 +117,13 @@ footer a{color:var(--ink-2)}
     <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
     <li><strong>S&amp;P 500</strong> — la caída de la bolsa presiona (signo invertido).</li>
     <li><strong>Cruces por el Estrecho de Ormuz</strong> — la caída del tránsito presiona
-    (signo invertido). Fuente: <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a>
-    (FMI + Oxford, datos AIS satelitales), suavizado con promedio móvil de 7 días.
-    PortWatch actualiza semanalmente, así que este componente llega con unos días de
-    rezago y se arrastra el último valor conocido.</li>
+    (signo invertido). Combina dos fuentes priorizando siempre el dato más reciente:
+    el monitor público de <a href="https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
+    rel="noopener">Lloyd's List Intelligence</a> (diario, al día) e
+    <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a> (FMI + Oxford,
+    historia larga y respaldo; actualiza semanalmente). Donde ambas se superponen manda
+    Lloyd's; PortWatch se reescala a unidades comparables con la mediana del período común.
+    La serie se suaviza con promedio móvil de 7 días.</li>
   </ul>
   <p>El índice es el promedio de los z-scores disponibles (los cuatro cuando PortWatch
   responde; los tres de mercado si no). Los datos se actualizan cada día hábil tras el
@@ -185,7 +188,8 @@ function lineChart(box, rows, seriesDefs, opts){
   }
 
   // grilla y ejes
-  const step=(vmax-vmin)>4?1:0.5;
+  const range=vmax-vmin;
+  const step=range>20?5:range>8?2:range>4?1:0.5;
   for(let v=Math.ceil(vmin/step)*step; v<=vmax; v+=step){
     const y=Y(v);
     el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--grid"),"stroke-width":1},svg);
@@ -285,7 +289,10 @@ function render(data){
     t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name}</div>
       <div class="value">${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
       <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${
-        c.key==="z_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
+        c.key==="z_hormuz"&&data.hormuz_today
+          ?` · ${data.hormuz_today.total} tránsitos el ${data.hormuz_today.date}`+
+           (data.hormuz_today.dark?` (${data.hormuz_today.dark} dark)`:"")
+          :c.key==="z_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
   }
 
   // chart principal

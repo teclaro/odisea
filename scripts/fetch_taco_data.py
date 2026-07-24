@@ -10,11 +10,15 @@ Variables:
   - Brent (alza = presion)
   - Rendimiento del Tesoro USA a 10 anos (alza = presion)
   - S&P 500 (caida = presion)
-  - Cruces por el Estrecho de Ormuz, IMF PortWatch (caida = presion).
-    PortWatch publica datos diarios con actualizacion semanal (martes), asi
-    que este componente llega con algunos dias de rezago: se suaviza con un
-    promedio movil de 7 dias y se arrastra el ultimo valor conocido. Si la
-    fuente falla, el indice se calcula con los otros tres componentes.
+  - Cruces por el Estrecho de Ormuz (caida = presion), combinando dos
+    fuentes y priorizando siempre el dato mas reciente: el monitor publico
+    de Lloyd's List Intelligence (diario, al dia, unidades canonicas) e IMF
+    PortWatch (historia larga y respaldo; publica semanalmente con rezago).
+    Donde ambas se superponen manda Lloyd's; la serie de PortWatch se
+    reescala a unidades Lloyd's con la mediana del ratio del periodo comun.
+    Se suaviza con promedio movil de 7 dias y se arrastra el ultimo valor
+    conocido. Si ambas fuentes fallan, el indice usa los otros tres
+    componentes.
 
 Para cada serie se calcula el z-score del nivel actual contra la media y
 desviacion estandar moviles de los WINDOW dias habiles previos, orientado para
@@ -25,8 +29,10 @@ Finance (JSON). Pensado para correr en GitHub Actions.
 """
 
 import csv
+import gzip
 import io
 import json
+import re
 import statistics
 import sys
 import urllib.request
@@ -47,6 +53,7 @@ SERIES = {
 PORTWATCH_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/"
                  "services/Daily_Chokepoints_Data/FeatureServer/0/query")
 HORMUZ_ID = "chokepoint6"
+LLOYDS_URL = "https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
 
 PIVOTS = [
     {"date": "2026-03-22", "label": "Giro hacia negociaciones de cese al fuego"},
@@ -58,7 +65,10 @@ PIVOTS = [
 def http_get(url, timeout=30):
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (taco-index)"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+        payload = resp.read()
+        if resp.headers.get("Content-Encoding", "").lower() == "gzip":
+            payload = gzip.decompress(payload)
+        return payload.decode("utf-8", errors="replace")
 
 
 def fetch_stooq(symbol, d1, d2):
@@ -106,7 +116,65 @@ def fetch_series(name, stooq_symbols, yahoo_symbol, d1, d2):
     return data
 
 
-def fetch_hormuz(d1):
+def fetch_lloyds_hormuz():
+    """Cruces diarios por Ormuz desde el monitor publico de Lloyd's List.
+
+    La pagina embebe un JSON (INJECTED_DATA) con hechos por fecha; se agrega
+    el total diario y el detalle del ultimo dia (dark / flota fantasma /
+    vinculo con Iran).
+    """
+    html = http_get(LLOYDS_URL, timeout=60)
+    m = re.search(r"INJECTED_DATA\s*=\s*(\{.*?\});\s*(?:const|let|var|window|</)",
+                  html, flags=re.DOTALL)
+    if not m:
+        raise RuntimeError("Lloyd's: INJECTED_DATA no encontrado en la pagina")
+    facts = json.loads(m.group(1)).get("facts", [])
+    daily, detail = {}, {}
+    for f in facts:
+        d, n = f.get("d"), int(f.get("n") or 0)
+        if not d or len(str(d)) != 10:
+            continue
+        d = str(d)
+        daily[d] = daily.get(d, 0.0) + n
+        det = detail.setdefault(d, {"dark": 0, "shadow": 0, "iran": 0})
+        if f.get("tt") == "Dark Transit":
+            det["dark"] += n
+        if f.get("sf") == "Y":
+            det["shadow"] += n
+        if f.get("irntso") == "Y":
+            det["iran"] += n
+    if len(daily) < 30:
+        raise RuntimeError(f"Lloyd's: pocos dias ({len(daily)})")
+    last = max(daily)
+    print(f"hormuz: lloydslist -> {len(daily)} dias, ultimo {last} "
+          f"({daily[last]:.0f} transitos)")
+    today = {"date": last, "total": round(daily[last]), **detail[last]}
+    return daily, today
+
+
+def combine_hormuz(lloyds, portwatch):
+    """Empalma ambas series priorizando el dato mas reciente (Lloyd's).
+
+    Unidades canonicas: Lloyd's. PortWatch aporta la historia previa,
+    reescalada con la mediana del ratio de los dias comunes; en los dias
+    donde ambas existen manda Lloyd's, que es diaria y esta al dia.
+    """
+    if not lloyds:
+        return portwatch, ["portwatch"]
+    if not portwatch:
+        return lloyds, ["lloydslist"]
+    common = [d for d in lloyds if d in portwatch
+              and lloyds[d] > 0 and portwatch[d] > 0]
+    k = (statistics.median(lloyds[d] / portwatch[d] for d in common)
+         if len(common) >= 10 else 1.0)
+    out = {d: v * k for d, v in portwatch.items()}
+    out.update(lloyds)
+    print(f"hormuz: empalme lloydslist+portwatch (ratio x{k:.3f}, "
+          f"{len(common)} dias comunes)")
+    return out, ["lloydslist", "portwatch"]
+
+
+def fetch_portwatch_hormuz(d1):
     """Cruces diarios por Ormuz desde IMF PortWatch (ArcGIS FeatureServer)."""
     from urllib.parse import urlencode
     out, offset = {}, 0
@@ -216,11 +284,26 @@ def main():
         zs[name] = [None if z is None else direction * z
                     for z in rolling_z(levels[name], WINDOW)]
 
-    # Cuarto componente: cruces por Ormuz (IMF PortWatch), opcional
+    # Cuarto componente: cruces por Ormuz (Lloyd's List + PortWatch), opcional
     components = list(SERIES)
     hormuz_last = None
+    hormuz_sources = []
+    hormuz_today = None
+    lloyds = portwatch = None
     try:
-        hz = smooth7(fetch_hormuz(d1))
+        lloyds, hormuz_today = fetch_lloyds_hormuz()
+    except Exception as exc:
+        print(f"hormuz: lloydslist fallo ({exc})")
+    try:
+        portwatch = fetch_portwatch_hormuz(d1)
+    except Exception as exc:
+        print(f"hormuz: portwatch fallo ({exc})")
+    try:
+        combined, hormuz_sources = combine_hormuz(lloyds, portwatch)
+        if not combined:
+            raise RuntimeError("sin datos de ninguna fuente")
+        combined = {d: v for d, v in combined.items() if d >= d1.isoformat()}
+        hz = smooth7(combined)
         hormuz_last = max(hz)
         hz_days = sorted(hz)
         ff, j, lastv = [], 0, None      # forward-fill a las fechas de mercado
@@ -238,6 +321,8 @@ def main():
         components.append("hormuz")
     except Exception as exc:
         print(f"hormuz: excluido de esta corrida ({exc})")
+        hormuz_sources = []
+        hormuz_today = None
 
     rows = []
     for i, d in enumerate(dates):
@@ -264,9 +349,12 @@ def main():
         "pivots": PIVOTS,
         "components": components,
         "hormuz_last": hormuz_last,
+        "hormuz_sources": hormuz_sources,
+        "hormuz_today": hormuz_today,
         "note": ("Replica no oficial del indice TACO de Signum Global Advisors. "
-                 "Cruces por Ormuz: IMF PortWatch (promedio movil 7d, rezago "
-                 "semanal). Solo con fines educativos; no es asesoria de inversion."),
+                 "Cruces por Ormuz: Lloyd's List Intelligence (diario) empalmado "
+                 "con IMF PortWatch (historia/respaldo), promedio movil 7d. "
+                 "Solo con fines educativos; no es asesoria de inversion."),
         "rows": rows,
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
