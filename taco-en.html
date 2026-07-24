@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Índice TACO — ¿cuándo pivotea Trump?</title>
-<meta name="description" content="Índice TACO (Trump Always Chickens Out), basado en Signum Global Advisors: presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años, S&P 500 y cruces por el Estrecho de Ormuz.">
+<title>TACO Index — when will Trump chicken out?</title>
+<meta name="description" content="TACO Index (Trump Always Chickens Out), based on Signum Global Advisors: market pressure measured in standard deviations using Brent, the 10-year Treasury, the S&P 500 and Strait of Hormuz transits.">
 <meta name="theme-color" content="#1a1a19">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231a1a19' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
 <style>
@@ -95,59 +95,58 @@ footer a{color:var(--ink-2)}
 <div class="wrap">
 
 <header class="top">
-  <h1>🌮 Índice TACO</h1>
-  <p class="sub">Basado en <strong>Signum Global Advisors</strong>:
-  mide, en desviaciones estándar, la presión de los mercados sobre Trump.
-  Históricamente, los giros de política («TACO»: <em>Trump Always Chickens Out</em>)
-  llegan cuando el movimiento alcanza <strong>2.3–3.4 σ</strong> (promedio <strong>2.9 σ</strong>).
-  <a href="taco-en.html" lang="en">English version</a></p>
+  <h1>🌮 TACO Index</h1>
+  <p class="sub">Based on <strong>Signum Global Advisors</strong>:
+  it measures, in standard deviations, how much pressure markets are putting on Trump.
+  Historically, policy U-turns ("TACO": <em>Trump Always Chickens Out</em>)
+  arrive once the move reaches <strong>2.3–3.4 σ</strong> (average <strong>2.9 σ</strong>).
+  <a href="taco.html" lang="es">Versión en español</a></p>
 </header>
 
 <div id="app">
-  <div class="card"><div class="msg">Cargando datos…</div></div>
+  <div class="card"><div class="msg">Loading data…</div></div>
 </div>
 
 <section class="prose">
-  <h2>Metodología</h2>
-  <p>Basado en el <em>Hormuz TACO Index</em> de Signum («weighted z-score from 7-Mar
-  baseline»): cada variable se convierte a <em>z-score</em> contra su nivel en la
-  <strong>línea base fija del 7 de marzo de 2026</strong> (última sesión previa), con la
-  desviación estándar de los 60 días hábiles anteriores a la base, orientado para que un
-  valor positivo signifique presión sobre la Casa Blanca:</p>
+  <h2>Methodology</h2>
+  <p>Based on Signum&#39;s <em>Hormuz TACO Index</em> ("weighted z-score from 7-Mar
+  baseline"): each variable is converted to a <em>z-score</em> against its level at the
+  <strong>fixed March 7, 2026 baseline</strong> (last prior session), using the standard
+  deviation of the 60 trading days before the baseline, oriented so that a positive
+  value means pressure on the White House:</p>
   <ul>
-    <li><strong>Brent</strong> — el alza del crudo presiona (inflación, bencinas).</li>
-    <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
-    <li><strong>S&amp;P 500</strong> — la caída de la bolsa presiona (signo invertido).</li>
-    <li><strong>Cruces por el Estrecho de Ormuz</strong> — la caída del tránsito presiona
-    (signo invertido). Combina dos fuentes priorizando siempre el dato más reciente:
-    el monitor público de <a href="https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
-    rel="noopener">Lloyd's List Intelligence</a> (diario, al día) e
-    <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a> (FMI + Oxford,
-    historia larga y respaldo; actualiza semanalmente). Donde ambas se superponen manda
-    Lloyd's; PortWatch se reescala a unidades comparables con la mediana del período común.
-    La serie se suaviza con promedio móvil de 7 días.</li>
+    <li><strong>Brent</strong> — rising crude adds pressure (inflation, gas prices).</li>
+    <li><strong>US 10-year Treasury</strong> — rising yields add pressure (financing costs).</li>
+    <li><strong>S&amp;P 500</strong> — a falling market adds pressure (sign inverted).</li>
+    <li><strong>Strait of Hormuz transits</strong> — falling traffic adds pressure
+    (sign inverted). Two sources are combined, always favoring the freshest data:
+    the public <a href="https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
+    rel="noopener">Lloyd&#39;s List Intelligence</a> monitor (daily, up to date) and
+    <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a> (IMF + Oxford,
+    long history and fallback; updates weekly). Where both overlap, Lloyd&#39;s wins;
+    PortWatch is rescaled to comparable units using the median ratio over the common
+    period. The series is smoothed with a 7-day moving average.</li>
   </ul>
-  <p>El índice es la <strong>suma ponderada</strong> de los z-scores. Signum no publica
-  sus pesos, así que se calibraron por mínimos cuadrados contra los siete puntos anotados
-  en su gráfico público (error medio ~0.35 σ): Brent 0.52 · Tesoro 10a 0.22 ·
-  S&amp;P 500 0.05 · Ormuz 1.13. Si una fuente de Ormuz falla se usa la otra; si ambas
-  fallan, el índice sigue con los componentes de mercado. Los datos se actualizan cada
-  día hábil tras el cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en
-  Yahoo Finance).</p>
+  <p>The index is the <strong>weighted sum</strong> of the z-scores. Signum does not
+  publish its weights, so they were fitted by least squares against the seven annotated
+  points on its public chart (mean error ~0.35 σ): Brent 0.52 · 10-year 0.22 ·
+  S&amp;P 500 0.05 · Hormuz 1.13. If one Hormuz source fails the other is used; if both
+  fail, the index continues with the market components. Data refreshes every weekday
+  after the Wall Street close via GitHub Actions (Stooq, with Yahoo Finance backup).</p>
 </section>
 
 <footer>
-  Basado en Signum Global Advisors. Indicador educativo — no es asesoría de inversión y no
-  está afiliado a Signum ni a Lloyd's List. Pivotes marcados según el gráfico de Signum (2026):
-  dovish 22-mar, 7-abr, 18-may, 11-jun · hawkish 29-may, 7-jul.
+  Based on Signum Global Advisors. Educational indicator — not investment advice, and not
+  affiliated with Signum or Lloyd&#39;s List. Pivots marked per Signum&#39;s chart (2026):
+  dovish Mar 22, Apr 7, May 18, Jun 11 · hawkish May 29, Jul 7.
 </footer>
 
 </div>
 
 <script>
 "use strict";
-const FMT = new Intl.NumberFormat("es-CL",{minimumFractionDigits:2,maximumFractionDigits:2});
-const DFMT = new Intl.DateTimeFormat("es-CL",{day:"numeric",month:"short",year:"numeric"});
+const FMT = new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const DFMT = new Intl.DateTimeFormat("en-US",{day:"numeric",month:"short",year:"numeric"});
 const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
 const el = (tag,attrs={},parent=null)=>{
   const ns = "http://www.w3.org/2000/svg";
@@ -160,9 +159,9 @@ const el = (tag,attrs={},parent=null)=>{
 const parseDate = s => new Date(s+"T12:00:00");
 
 function statusFor(v,th){
-  if(v>=th.avg) return {txt:"Pivote esperado", color:css("--crit"), icon:"▲"};
-  if(v>=th.low) return {txt:"Acercándose a la zona de pivote", color:css("--warn"), icon:"◆"};
-  return {txt:"Sin señal de pivote", color:css("--good"), icon:"●"};
+  if(v>=th.avg) return {txt:"Pivot expected", color:css("--crit"), icon:"▲"};
+  if(v>=th.low) return {txt:"Approaching the pivot zone", color:css("--warn"), icon:"◆"};
+  return {txt:"No pivot signal", color:css("--good"), icon:"●"};
 }
 
 /* ---- chart genérico de líneas con crosshair + tooltip ---- */
@@ -190,7 +189,7 @@ function lineChart(box, rows, seriesDefs, opts){
     el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
       stroke:css("--crit"),"stroke-width":1.5,"stroke-opacity":.55},svg);
     el("text",{x:m.l+iw-4,y:Y(opts.band.avg)-6,"text-anchor":"end","font-size":11,
-      fill:css("--ink-2")},svg).textContent=`pivote promedio ${opts.band.avg} σ`;
+      fill:css("--ink-2")},svg).textContent=`avg pivot ${opts.band.avg} σ`;
   }
 
   // grilla y ejes
@@ -209,7 +208,7 @@ function lineChart(box, rows, seriesDefs, opts){
     if(months.has(k)) continue; months.add(k);
     if(d.getDate()>7) continue;
     el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":11,fill:css("--muted")},svg)
-      .textContent=d.toLocaleDateString("es-CL",{month:"short"});
+      .textContent=d.toLocaleDateString("en-US",{month:"short"});
   }
 
   // pivotes históricos
@@ -281,8 +280,8 @@ function lineChart(box, rows, seriesDefs, opts){
       tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(p.date))}</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
           <span style="width:8px;height:8px;border-radius:50%;background:${c}"></span>
-          <b>${p.type==="hawkish"?"Hawkish (endurece)":"Dovish (se ablanda)"}</b></div>
-        <div style="color:var(--ink-2);max-width:230px">${p.label||""}</div>`;
+          <b>${p.type==="hawkish"?"Hawkish (hardening)":"Dovish (softening)"}</b></div>
+        <div style="color:var(--ink-2);max-width:230px">${p.label_en||p.label||""}</div>`;
       const bw=box.clientWidth, ttw=tt.offsetWidth||190;
       let left=x/W*bw+14; if(left+ttw>bw-4) left=x/W*bw-ttw-14;
       tt.style.left=left+"px";
@@ -307,55 +306,55 @@ function render(data){
   // tiles
   const tiles=el("div",{class:"tiles"},app);
   const hero=el("div",{class:"tile hero"},tiles);
-  hero.innerHTML=`<div class="label">Índice TACO hoy</div>
+  hero.innerHTML=`<div class="label">TACO Index today</div>
     <div class="value">${FMT.format(last.taco)}<span class="sigma"> σ</span></div>
     <div class="status"><span class="dot" style="background:${st.color}"></span>${st.icon} ${st.txt}</div>
-    <div class="detail">Umbral de pivote: ${th.low}–${th.high} σ · dato al ${DFMT.format(parseDate(last.date))}</div>`;
+    <div class="detail">Pivot threshold: ${th.low}–${th.high} σ · as of ${DFMT.format(parseDate(last.date))}</div>`;
   const comps=[
     {key:"c_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
-    {key:"c_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--s3", unit:"%"},
-    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
-    {key:"c_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--s4", unit:" naves/día"},
+    {key:"c_y10",   lvl:"y10",   name:"10-Year Treasury", color:"--s3", unit:"%"},
+    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (inverted)", color:"--s1", unit:""},
+    {key:"c_hormuz",lvl:"hormuz",name:"Hormuz crossings (inverted)", color:"--s4", unit:" ships/day"},
   ].filter(c=>last[c.key]!=null);
   for(const c of comps){
     const t=el("div",{class:"tile"},tiles);
-    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name} · aporte</div>
+    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name} · contribution</div>
       <div class="value">${last[c.key]>0?"+":""}${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
-      <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${
+      <div class="detail">Level: ${FMT.format(last[c.lvl])}${c.unit}${
         c.key==="c_hormuz"&&data.hormuz_today
-          ?` · ${data.hormuz_today.total} tránsitos el ${data.hormuz_today.date}`+
+          ?` · ${data.hormuz_today.total} transits on ${data.hormuz_today.date}`+
            (data.hormuz_today.dark?` (${data.hormuz_today.dark} dark)`:"")
-          :c.key==="c_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
+          :c.key==="c_hormuz"&&data.hormuz_last?` · as of ${data.hormuz_last}`:""}</div>`;
   }
 
   // chart principal
   const card1=el("div",{class:"card"},app);
-  card1.innerHTML=`<h2>Índice compuesto</h2>
-    <div class="hint">Z ponderado contra la línea base fija del 7-mar-2026, como lo define Signum. La franja roja marca la zona de pivote histórica.</div>`;
+  card1.innerHTML=`<h2>Composite index</h2>
+    <div class="hint">Weighted z-score against the fixed 7-Mar-2026 baseline, as defined by Signum. The red band marks the historical pivot zone.</div>`;
   const fig1=el("figure",{},card1);
   const box1=el("div",{class:"chart-box"},fig1);
-  lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--ink"}],
-    {label:"Índice TACO en el tiempo",band:th,pivots:data.pivots});
-  el("figcaption",{},fig1).textContent="Verticales: pivotes observados — verde dovish (se ablanda), rojo hawkish (endurece).";
+  lineChart(box1,rows,[{key:"taco",name:"TACO Index",color:"--ink"}],
+    {label:"TACO Index over time",band:th,pivots:data.pivots});
+  el("figcaption",{},fig1).textContent="Verticals: observed pivots — green dovish (softening), red hawkish (hardening). Hover for the news.";
 
   // chart de componentes
   const card2=el("div",{class:"card"},app);
-  card2.innerHTML=`<h2>Componentes</h2>
-    <div class="hint">Aporte ponderado de cada componente (peso × z): positivo = presión sobre Trump. La suma de los cuatro es el índice.</div>
+  card2.innerHTML=`<h2>Components</h2>
+    <div class="hint">Each component&#39;s weighted contribution (weight × z): positive = pressure on Trump. The four sum to the index.</div>
     <div class="legend">${comps.map(c=>
       `<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
   lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
-    {label:"Componentes del índice TACO",pivots:data.pivots});
+    {label:"TACO Index components",pivots:data.pivots});
 
   // tabla accesible
   const det=el("details",{},app);
-  el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
+  el("summary",{},det).textContent="View data table (last 30 days)";
   const tbl=el("table",{},det);
   const hasHz=last.c_hormuz!=null;
-  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent</th><th>10a</th><th>S&P</th>${
-    hasHz?"<th>Ormuz</th>":""}<th>Brent US$</th><th>10a %</th><th>S&P 500</th>${
-    hasHz?"<th>Ormuz n/d</th>":""}</tr></thead>`;
+  tbl.innerHTML=`<thead><tr><th>Date</th><th>TACO σ</th><th>Brent</th><th>10y</th><th>S&P</th>${
+    hasHz?"<th>Hormuz</th>":""}<th>Brent US$</th><th>10y %</th><th>S&P 500</th>${
+    hasHz?"<th>Hormuz s/d</th>":""}</tr></thead>`;
   const tb=el("tbody",{},tbl);
   const fmt=v=>v==null?"—":FMT.format(v);
   for(const r of rows.slice(-30).reverse()){
@@ -367,7 +366,7 @@ function render(data){
   }
   const note=el("p",{class:"detail"},app);
   note.style.cssText="font-size:13px;color:var(--muted);margin-top:14px";
-  note.textContent=`Actualizado: ${data.updated}. ${data.note}`;
+  note.textContent=`Updated: ${data.updated}. Based on Signum Global Advisors’ Hormuz TACO Index: weighted z-scores vs the fixed 7-Mar-2026 baseline, weights calibrated to Signum’s published chart. Hormuz transits: Lloyd’s List (daily) + IMF PortWatch (backup), 7-day moving average. Educational only; not investment advice.`;
 }
 
 fetch("data/taco.json")
@@ -375,8 +374,8 @@ fetch("data/taco.json")
   .then(render)
   .catch(()=>{
     document.getElementById("app").innerHTML=
-      `<div class="card"><div class="msg">Aún no hay datos. Ejecuta el workflow
-      «Actualizar datos del indice TACO» en GitHub Actions para generar
+      `<div class="card"><div class="msg">No data yet. Run the
+      "Actualizar datos del indice TACO" workflow in GitHub Actions to generate
       <code>data/taco.json</code>.</div></div>`;
   });
 
