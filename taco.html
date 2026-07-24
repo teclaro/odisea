@@ -7,6 +7,15 @@
 <meta name="description" content="Índice TACO (Trump Always Chickens Out), basado en Signum Global Advisors: presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años, S&P 500 y cruces por el Estrecho de Ormuz.">
 <meta name="theme-color" content="#1a1a19">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231a1a19' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='26' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
+<link rel="alternate" hreflang="es" href="taco.html">
+<link rel="alternate" hreflang="en" href="taco-en.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Índice TACO — basado en Signum Global Advisors">
+<meta property="og:description" content="Presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años, S&P 500 y cruces por el Estrecho de Ormuz. Actualizado cada día hábil.">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{ color-scheme: light dark; }
 .viz-root{
@@ -33,27 +42,53 @@
   --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
 }
+html{scroll-behavior:smooth}
 *{box-sizing:border-box;margin:0;padding:0}
 body.viz-root{
-  background:var(--page); color:var(--ink);
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    repeating-radial-gradient(circle at 0 0, rgba(127,127,127,.035) 0, transparent 1.4px),
+    var(--page);
+  background-size:5px 5px, auto;
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
 }
+.skip-link{
+  position:absolute; left:-9999px; top:auto; z-index:100;
+  background:var(--ink); color:var(--page); padding:10px 16px; border-radius:8px;
+  font-weight:600; text-decoration:none;
+}
+.skip-link:focus{left:20px; top:20px}
 .wrap{max-width:960px;margin:0 auto;padding:0 20px 64px}
 header.top{padding:44px 0 8px}
-h1{font-size:clamp(26px,5vw,36px);line-height:1.15;letter-spacing:-.01em}
-.sub{color:var(--ink-2);max-width:64ch;margin-top:10px}
-.sub a{color:inherit}
+h1{font-size:clamp(26px,5vw,36px);font-weight:700;line-height:1.15;letter-spacing:-.015em}
+.sub{color:var(--ink-2);max-width:64ch;margin-top:10px;text-wrap:pretty}
+.sub a{color:var(--ink);text-underline-offset:3px;text-decoration-color:var(--border);transition:text-decoration-color .18s ease}
+.sub a:hover{text-decoration-color:currentColor}
 .card{
   background:var(--surface); border:1px solid var(--border);
-  border-radius:12px; padding:20px; margin-top:20px;
+  border-radius:14px; padding:20px; margin-top:20px;
+  transition:border-color .2s ease, box-shadow .2s ease;
 }
-.card h2{font-size:17px;font-weight:600;margin-bottom:2px}
+.card:hover{border-color:var(--axis); box-shadow:0 8px 28px -12px rgba(0,0,0,.22)}
+.card h2{font-size:17px;font-weight:600;margin-bottom:2px;letter-spacing:-.005em}
 .card .hint{font-size:13px;color:var(--muted);margin-bottom:14px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:24px}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
-.tile .label{font-size:13px;color:var(--ink-2)}
-.tile .value{font-size:34px;font-weight:600;line-height:1.1;margin-top:4px;white-space:nowrap}
+.tile{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  border-left:3px solid transparent; transition:background-color .18s ease, border-color .18s ease;
+}
+.tile.hero{
+  background:linear-gradient(180deg, color-mix(in srgb, var(--tile-accent,var(--muted)) 7%, var(--surface)), var(--surface));
+  border-left-color:var(--tile-accent,var(--border));
+}
+.tile.can-hover{cursor:default}
+.tile.can-hover:hover, .tile.can-hover.is-active{
+  background:color-mix(in srgb, var(--s,var(--muted)) 8%, var(--surface));
+  border-left-color:var(--s,var(--border));
+}
+.tile .label{font-size:13px;color:var(--ink-2);letter-spacing:.005em}
+.tile .value{font-size:34px;font-weight:700;line-height:1.1;margin-top:4px;white-space:nowrap;font-variant-numeric:proportional-nums}
 .tile.hero .value{font-size:44px}
 .tile .value .sigma{font-size:.55em;font-weight:500;color:var(--ink-2)}
 .tile .detail{font-size:13px;color:var(--muted);margin-top:4px}
@@ -64,34 +99,56 @@ figure{margin:0}
 figcaption{font-size:13px;color:var(--muted);margin-top:10px}
 .chart-box{position:relative}
 .chart-box svg{display:block;width:100%;height:auto}
+.chart-box .hl-line{transition:stroke-width .15s ease, opacity .15s ease}
+.chart-box .hl-dim{opacity:.25}
 .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-2);margin-bottom:10px}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
 .tooltip{
-  position:absolute; pointer-events:none; display:none; z-index:5;
-  background:var(--surface); border:1px solid var(--border); border-radius:8px;
-  box-shadow:0 4px 16px rgba(0,0,0,.18);
+  position:absolute; pointer-events:none; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:9px;
+  box-shadow:0 10px 28px -6px rgba(0,0,0,.28), 0 2px 8px -2px rgba(0,0,0,.18);
   padding:8px 11px; font-size:13px; min-width:150px;
+  opacity:0; visibility:hidden; transform:translateY(2px);
+  transition:opacity .12s ease, transform .12s ease;
 }
+.tooltip.is-visible{opacity:1; visibility:visible; transform:translateY(0)}
 .tooltip .tt-date{font-weight:600;margin-bottom:3px}
 .tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink-2)}
 .tooltip .tt-row b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 section.prose{margin-top:36px}
-section.prose h2{font-size:20px;margin-bottom:10px}
-section.prose p{color:var(--ink-2);max-width:70ch;margin-bottom:12px}
+section.prose h2{font-size:20px;margin-bottom:10px;letter-spacing:-.005em}
+section.prose p{color:var(--ink-2);max-width:70ch;margin-bottom:12px;text-wrap:pretty}
 section.prose li{color:var(--ink-2);margin:6px 0 6px 22px}
+section.prose a{color:var(--ink);text-underline-offset:3px;transition:color .18s ease}
+section.prose a:hover{color:var(--s1,var(--ink))}
 details{margin-top:20px}
-summary{cursor:pointer;font-weight:600;font-size:15px}
+summary{cursor:pointer;font-weight:600;font-size:15px;transition:color .18s ease;width:fit-content}
+summary:hover{color:var(--s1,var(--ink))}
 table{border-collapse:collapse;width:100%;margin-top:12px;font-size:13.5px}
 th,td{text-align:right;padding:6px 10px;border-bottom:1px solid var(--grid);font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{text-align:left}
-th{color:var(--ink-2);font-weight:600}
+thead th{color:var(--ink-2);font-weight:600;border-bottom:2px solid var(--axis)}
+tbody tr{transition:background-color .12s ease}
+tbody tr:hover{background:color-mix(in srgb, var(--ink) 4%, transparent)}
 .msg{padding:28px;text-align:center;color:var(--ink-2)}
-footer{margin-top:44px;font-size:13px;color:var(--muted);border-top:1px solid var(--grid);padding-top:18px}
-footer a{color:var(--ink-2)}
+.skeleton{padding:20px}
+.skel{background:linear-gradient(90deg, var(--grid) 25%, var(--border) 37%, var(--grid) 63%);
+  background-size:400% 100%; animation:skel-pulse 1.6s ease-in-out infinite; border-radius:8px}
+@keyframes skel-pulse{0%{background-position:100% 0}100%{background-position:0 0}}
+.foot-note{font-size:13px;color:var(--muted);margin-top:14px;text-wrap:pretty}
+footer{margin-top:44px;font-size:13px;color:var(--muted);border-top:1px solid var(--grid);padding-top:18px;text-wrap:pretty}
+footer a{color:var(--ink-2);transition:color .18s ease}
+footer a:hover{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .skel{animation:none}
+  .card,.tile,.tooltip,.chart-box .hl-line,tbody tr,summary,a{transition:none}
+}
 </style>
 </head>
 <body class="viz-root">
+<a class="skip-link" href="#main">Saltar al contenido</a>
 <div class="wrap">
 
 <header class="top">
@@ -103,8 +160,13 @@ footer a{color:var(--ink-2)}
   <a href="taco-en.html" lang="en">English version</a></p>
 </header>
 
+<main id="main">
 <div id="app">
-  <div class="card"><div class="msg">Cargando datos…</div></div>
+  <div class="card skeleton" aria-live="polite" aria-busy="true">
+    <div class="skel" style="height:13px;width:140px;margin-bottom:10px"></div>
+    <div class="skel" style="height:38px;width:110px;margin-bottom:8px"></div>
+    <div class="skel" style="height:13px;width:200px"></div>
+  </div>
 </div>
 
 <section class="prose">
@@ -135,6 +197,7 @@ footer a{color:var(--ink-2)}
   día hábil tras el cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en
   Yahoo Finance).</p>
 </section>
+</main>
 
 <footer>
   Basado en Signum Global Advisors. Indicador educativo — no es asesoría de inversión y no
@@ -226,13 +289,15 @@ function lineChart(box, rows, seriesDefs, opts){
   }
 
   // series
+  const seriesEls={};
   for(const s of seriesDefs){
     const d=rows.map((r,i)=>(r[s.key]==null?"":`${i?"L":"M"}${X(xs[i]).toFixed(1)} ${Y(r[s.key]).toFixed(1)}`)).join("");
-    el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2,
-      "stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    const path=el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2,class:"hl-line",
+      "data-key":s.key,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
     const last=rows[rows.length-1];
-    el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
-      stroke:css("--surface"),"stroke-width":2},svg);
+    const endDot=el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
+      class:"hl-line","data-key":s.key,stroke:css("--surface"),"stroke-width":2},svg);
+    seriesEls[s.key]={path,endDot};
   }
   // etiqueta directa solo del último punto de la serie principal
   const main=seriesDefs[0], lastRow=rows[rows.length-1];
@@ -258,7 +323,7 @@ function lineChart(box, rows, seriesDefs, opts){
       dots[k].setAttribute("cx",cx); dots[k].setAttribute("cy",Y(r[s.key]));
       dots[k].setAttribute("opacity",1);
     });
-    tt.style.display="block";
+    tt.classList.add("is-visible");
     tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(r.date))}</div>`+
       seriesDefs.map(s=>`<div class="tt-row"><span>${s.name}</span><b>${FMT.format(r[s.key])}</b></div>`).join("");
     const bw=box.clientWidth, ttw=tt.offsetWidth||160;
@@ -269,7 +334,7 @@ function lineChart(box, rows, seriesDefs, opts){
   hit.addEventListener("pointerleave",()=>{
     cross.setAttribute("stroke-opacity",0);
     dots.forEach(d=>d.setAttribute("opacity",0));
-    tt.style.display="none";
+    tt.classList.remove("is-visible");
   });
   for(const {x,p,c} of pivotPts){
     const pr=el("rect",{x:x-8,y:m.t,width:16,height:ih,fill:"transparent"},svg);
@@ -277,7 +342,7 @@ function lineChart(box, rows, seriesDefs, opts){
     const show=ev=>{
       cross.setAttribute("stroke-opacity",0);
       dots.forEach(d=>d.setAttribute("opacity",0));
-      tt.style.display="block";
+      tt.classList.add("is-visible");
       tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(p.date))}</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
           <span style="width:8px;height:8px;border-radius:50%;background:${c}"></span>
@@ -291,8 +356,9 @@ function lineChart(box, rows, seriesDefs, opts){
     };
     pr.addEventListener("pointerenter",show);
     pr.addEventListener("pointermove",show);
-    pr.addEventListener("pointerleave",()=>{tt.style.display="none";});
+    pr.addEventListener("pointerleave",()=>{tt.classList.remove("is-visible");});
   }
+  return {seriesEls};
 }
 
 function render(data){
@@ -307,6 +373,7 @@ function render(data){
   // tiles
   const tiles=el("div",{class:"tiles"},app);
   const hero=el("div",{class:"tile hero"},tiles);
+  hero.style.setProperty("--tile-accent",st.color);
   hero.innerHTML=`<div class="label">Índice TACO hoy</div>
     <div class="value">${FMT.format(last.taco)}<span class="sigma"> σ</span></div>
     <div class="status"><span class="dot" style="background:${st.color}"></span>${st.icon} ${st.txt}</div>
@@ -317,8 +384,10 @@ function render(data){
     {key:"c_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
     {key:"c_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--s4", unit:" naves/día"},
   ].filter(c=>last[c.key]!=null);
+  const compTiles=[];
   for(const c of comps){
-    const t=el("div",{class:"tile"},tiles);
+    const t=el("div",{class:"tile can-hover"},tiles);
+    t.style.setProperty("--s",css(c.color));
     t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name} · aporte</div>
       <div class="value">${last[c.key]>0?"+":""}${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
       <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${
@@ -326,6 +395,7 @@ function render(data){
           ?` · ${data.hormuz_today.total} tránsitos el ${data.hormuz_today.date}`+
            (data.hormuz_today.dark?` (${data.hormuz_today.dark} dark)`:"")
           :c.key==="c_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
+    compTiles.push({key:c.key,el:t});
   }
 
   // chart principal
@@ -345,8 +415,32 @@ function render(data){
     <div class="legend">${comps.map(c=>
       `<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
-  lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
+  const chart2=lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
     {label:"Componentes del índice TACO",pivots:data.pivots});
+
+  // hover en un tile resalta su línea en el gráfico de componentes
+  const allKeys=Object.keys(chart2.seriesEls);
+  const highlight=key=>{
+    for(const k of allKeys){
+      const {path,endDot}=chart2.seriesEls[k];
+      const on=k===key;
+      path.setAttribute("stroke-width",on?3:2);
+      endDot.setAttribute("stroke-width",on?3:2);
+      path.classList.toggle("hl-dim",!on);
+      endDot.classList.toggle("hl-dim",!on);
+    }
+  };
+  const clearHighlight=()=>{
+    for(const k of allKeys){
+      const {path,endDot}=chart2.seriesEls[k];
+      path.setAttribute("stroke-width",2); endDot.setAttribute("stroke-width",2);
+      path.classList.remove("hl-dim"); endDot.classList.remove("hl-dim");
+    }
+  };
+  for(const {key,el:tileEl} of compTiles){
+    tileEl.addEventListener("pointerenter",()=>{tileEl.classList.add("is-active"); highlight(key);});
+    tileEl.addEventListener("pointerleave",()=>{tileEl.classList.remove("is-active"); clearHighlight();});
+  }
 
   // tabla accesible
   const det=el("details",{},app);
@@ -365,8 +459,7 @@ function render(data){
       <td>${fmt(r.brent)}</td><td>${fmt(r.y10)}</td><td>${fmt(r.spx)}</td>${
       hasHz?`<td>${fmt(r.hormuz)}</td>`:""}`;
   }
-  const note=el("p",{class:"detail"},app);
-  note.style.cssText="font-size:13px;color:var(--muted);margin-top:14px";
+  const note=el("p",{class:"foot-note"},app);
   note.textContent=`Actualizado: ${data.updated}. ${data.note}`;
 }
 
