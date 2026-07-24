@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>try{document.documentElement.dataset.mode=localStorage.getItem("taco-mode")||"dark"}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TACO Index — when will Trump chicken out?</title>
 <meta name="description" content="TACO Index (Trump Always Chickens Out), based on Signum Global Advisors: market pressure measured in standard deviations using Brent, the 10-year Treasury, the S&P 500 and Strait of Hormuz transits.">
@@ -17,39 +18,57 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{ color-scheme: dark; }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  --bg:#0a0a0a; --panel:#111112; --panel2:#161715;
+:root{
+  color-scheme: dark;
+  --bg:#0a0a0a; --panel:#111112; --panel2:#161715; --hover:#1a1b19;
   --fg:#eaeaea; --dim:#8a8a88; --dim2:#5a5a57;
   --line:#2a2a28; --line2:#4a4a46;
-  --red:#ff2a2a; --green:#4af626;
+  --red:#ff2a2a; --green:#4af626; --on-red:#0a0a0a;
+}
+:root[data-mode="light"]{
+  color-scheme: light;
+  --bg:#f4f4f0; --panel:#ffffff; --panel2:#ebe9e3; --hover:#e6e4dc;
+  --fg:#0b0b0b; --dim:#55534c; --dim2:#8a8880;
+  --line:#d8d6ce; --line2:#b8b6ac;
+  --red:#c81e1e; --green:#166534; --on-red:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
   background:var(--bg); color:var(--fg);
   font-family:"IBM Plex Mono",ui-monospace,"SF Mono",Consolas,monospace;
   font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
   position:relative;
 }
-/* barrido CRT */
+/* CRT sweep — tactical dark mode only */
 body::before{
   content:""; position:fixed; inset:0; z-index:80; pointer-events:none;
   background:repeating-linear-gradient(0deg,
     rgba(255,255,255,0) 0, rgba(255,255,255,0) 2px,
     rgba(255,255,255,.02) 2px, rgba(255,255,255,.02) 3px);
 }
+:root[data-mode="light"] body::before{display:none}
 em,i{font-style:normal;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--dim2)}
 code{background:var(--panel2);padding:2px 6px;border:1px solid var(--line);font-size:.95em}
 .skip-link{
   position:absolute; left:-9999px; top:auto; z-index:100;
-  background:var(--red); color:#0a0a0a; padding:10px 16px;
+  background:var(--red); color:var(--on-red); padding:10px 16px;
   font-weight:700; text-decoration:none; text-transform:uppercase; letter-spacing:.08em;
 }
 .skip-link:focus{left:20px; top:20px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 20px 64px}
 header.top{padding:44px 0 22px;border-bottom:2px solid var(--line)}
+.head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
 .eyebrow{
   display:block;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
   color:var(--red);margin-bottom:12px;
 }
+.mode-toggle{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+  background:transparent;border:1px solid var(--line2);padding:9px 14px;
+  cursor:pointer;flex:none;transition:color .12s linear,border-color .12s linear;
+}
+.mode-toggle:hover{color:var(--fg);border-color:var(--fg)}
 h1{
   font-family:"Archivo Black",system-ui,sans-serif;
   font-size:clamp(2.2rem,8vw,5rem);
@@ -88,7 +107,7 @@ h1{
 .status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-top:12px;letter-spacing:.06em;text-transform:uppercase}
 .status .dot{width:8px;height:8px;background:currentColor;flex:none}
 .tile.can-hover{cursor:default;transition:background-color .1s linear,border-color .1s linear}
-.tile.can-hover:hover,.tile.can-hover.is-active{background:#1a1b19;border-left:3px solid var(--red)}
+.tile.can-hover:hover,.tile.can-hover.is-active{background:var(--hover);border-left:3px solid var(--red)}
 
 figure{margin:0}
 figcaption{font-size:11px;color:var(--dim2);margin-top:14px;letter-spacing:.02em}
@@ -170,8 +189,13 @@ footer a:hover{color:var(--fg)}
 <div class="wrap">
 
 <header class="top">
-  <span class="eyebrow">&gt;&gt;&gt; Signum Global Advisors // Hormuz TACO Index</span>
-  <h1>TACO Index</h1>
+  <div class="head-row">
+    <div>
+      <span class="eyebrow">&gt;&gt;&gt; Signum Global Advisors // Hormuz TACO Index</span>
+      <h1>TACO Index</h1>
+    </div>
+    <button id="modeToggle" class="mode-toggle" type="button" aria-pressed="false">[ LIGHT MODE ]</button>
+  </div>
   <p class="sub">Based on <strong>Signum Global Advisors</strong>: it measures, in standard
   deviations, how much pressure markets are putting on Trump. Historically, policy U-turns
   ("TACO": <em>Trump Always Chickens Out</em>) arrive once the move reaches <strong>2.3–3.4 σ</strong>
@@ -277,7 +301,7 @@ function lineChart(box, rows, seriesDefs, opts){
     const pat=el("pattern",{id:patId,width:9,height:9,patternUnits:"userSpaceOnUse",
       patternTransform:"rotate(45)"},defs);
     el("rect",{width:9,height:9,fill:"transparent"},pat);
-    el("line",{x1:0,y1:0,x2:0,y2:9,stroke:css("--red"),"stroke-width":4,"stroke-opacity":.3},pat);
+    el("line",{x1:0,y1:0,x2:0,y2:9,stroke:css("--red"),"stroke-width":4,"stroke-opacity":.35},pat);
     el("rect",{x:m.l,y:Y(opts.band.high),width:iw,height:Y(opts.band.low)-Y(opts.band.high),
       fill:`url(#${patId})`},svg);
     el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
@@ -500,9 +524,27 @@ function render(data){
   note.textContent=`Updated: ${data.updated}. Based on Signum Global Advisors’ Hormuz TACO Index: weighted z-scores vs the fixed 7-Mar-2026 baseline, weights calibrated to Signum’s published chart. Hormuz transits: Lloyd’s List (daily) + IMF PortWatch (backup), 7-day moving average. Educational only; not investment advice.`;
 }
 
+// light/dark toggle (Swiss Industrial Print / Tactical Telemetry)
+let lastData=null;
+const modeToggle=document.getElementById("modeToggle");
+const applyMode=m=>{
+  document.documentElement.dataset.mode=m;
+  const tc=document.querySelector('meta[name="theme-color"]');
+  if(tc) tc.setAttribute("content", m==="light"?"#f4f4f0":"#0a0a0a");
+  modeToggle.textContent = m==="light" ? "[ DARK MODE ]" : "[ LIGHT MODE ]";
+  modeToggle.setAttribute("aria-pressed", m==="light" ? "true" : "false");
+};
+applyMode(document.documentElement.dataset.mode || "dark");
+modeToggle.addEventListener("click",()=>{
+  const next = document.documentElement.dataset.mode==="light" ? "dark" : "light";
+  try{ localStorage.setItem("taco-mode", next); }catch(e){}
+  applyMode(next);
+  if(lastData) render(lastData);
+});
+
 fetch("data/taco.json")
   .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(render)
+  .then(d=>{ lastData=d; render(d); })
   .catch(()=>{
     document.getElementById("app").innerHTML=
       `<div class="card"><div class="msg">[ no data ] Run the
