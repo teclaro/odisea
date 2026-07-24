@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Índice TACO — Club de Trading</title>
+<meta name="description" content="Índice TACO (Trump Always Chickens Out), basado en Signum Global Advisors: presión de mercado medida en desviaciones estándar con Brent, Tesoro a 10 años, S&P 500 y cruces por el Estrecho de Ormuz.">
+<meta name="theme-color" content="#1A3A5B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect fill='%231A3A5B' width='48' height='48' rx='10'/%3E%3Ctext x='24' y='33' font-size='24' text-anchor='middle'%3E%F0%9F%8C%AE%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{ color-scheme: light; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  --bg:#F8FAFC; --card:#FFFFFF;
+  --primary:#1A3A5B; --accent:#3B82F6;
+  --text:#0F1D2A; --muted:#52637A;
+  --border:#E2E8F0;
+  --destructive:#EF4444; --amber:#F59E0B; --green:#22C55E;
+  --c1:#3B82F6; --c2:#1A3A5B; --c3:#0EA5E9; --c4:#14B8A6;
+  background:var(--bg); color:var(--text);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"Space Mono",ui-monospace,monospace}
+.skip-link{
+  position:absolute; left:-9999px; top:auto; z-index:100;
+  background:var(--accent); color:#fff; padding:10px 16px; border-radius:.5rem;
+  font-weight:600; text-decoration:none;
+}
+.skip-link:focus{left:20px; top:20px}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 20px 48px}
+header.top{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.head-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo-badge{
+  width:36px;height:36px;border-radius:.5rem;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;
+}
+h1{font-size:22px;font-weight:700;color:var(--primary);letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:72ch;font-size:13px;margin-top:10px}
+.sub strong{color:var(--text);font-weight:600}
+.sub a{color:var(--accent);text-decoration:none}
+.sub a:hover{text-decoration:underline}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:.5rem;padding:20px;margin-top:16px;
+  box-shadow:0 1px 2px rgba(15,29,42,.04); transition:box-shadow .15s ease}
+.card:hover{box-shadow:0 4px 14px rgba(15,29,42,.08)}
+.card h2{
+  display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;color:var(--primary);margin-bottom:2px;
+}
+.card h2::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px;flex:none}
+.card .hint{font-size:12.5px;color:var(--muted);margin:4px 0 16px 13px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--card);border:1px solid var(--border);border-radius:.5rem;padding:16px 18px;
+  box-shadow:0 1px 2px rgba(15,29,42,.04)}
+.tile.hero{border-left:4px solid var(--tile-accent,var(--border))}
+.tile .label{font-size:11.5px;color:var(--muted);font-weight:500}
+.tile .value{font-family:"Space Mono",monospace;font-weight:700;font-size:28px;line-height:1.1;margin-top:8px;white-space:nowrap;color:var(--text)}
+.tile.hero .value{font-size:36px}
+.tile .value .sigma{font-size:.55em;color:var(--muted);font-weight:400}
+.tile .delta{font-size:11.5px;font-weight:600;margin-left:6px}
+.tile .delta.up{color:var(--green)} .tile .delta.down{color:var(--destructive)}
+.tile .detail{font-size:11.5px;color:var(--muted);margin-top:8px}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;margin-top:10px;
+  padding:3px 9px 3px 7px;border-radius:999px}
+.status .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.status.nominal{color:#15803D;background:#DCFCE7}
+.status.caution{color:#B45309;background:#FEF3C7}
+.status.alert{color:#B91C1C;background:#FEE2E2}
+.tile.can-hover{cursor:default;transition:background-color .12s ease,border-color .12s ease}
+.tile.can-hover:hover,.tile.can-hover.is-active{background:#F3F7FC;border-left:4px solid var(--accent)}
+
+figure{margin:0}
+figcaption{font-size:11.5px;color:var(--muted);margin-top:12px}
+.chart-box{position:relative}
+.chart-box svg{display:block;width:100%;height:auto}
+.chart-box .hl-line{transition:opacity .12s linear}
+.chart-box .hl-dim{opacity:.18}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px 13px}
+.legend span{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--muted);
+  border:1px solid var(--border);border-radius:999px;padding:4px 11px 4px 8px;cursor:default;
+  transition:color .12s ease,border-color .12s ease,background-color .12s ease;
+}
+.legend span i{width:8px;height:8px;border-radius:50%;flex:none}
+.legend span.is-active,.legend span:hover{color:var(--text);border-color:var(--accent);background:#F3F7FC}
+
+.tooltip{
+  position:absolute;pointer-events:none;z-index:5;
+  background:var(--card);border:1px solid var(--border);border-radius:.5rem;
+  box-shadow:0 8px 24px rgba(15,29,42,.14);
+  padding:10px 13px;font-size:12.5px;min-width:150px;
+  opacity:0;visibility:hidden;transform:translateY(3px);transition:opacity .12s ease,transform .12s ease;
+}
+.tooltip.is-visible{opacity:1;visibility:visible;transform:translateY(0)}
+.tooltip .tt-date{font-weight:600;margin-bottom:6px;color:var(--primary)}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-size:12px}
+.tooltip .tt-row+.tt-row{margin-top:2px}
+.tooltip .tt-row b{color:var(--text);font-weight:600;font-family:"Space Mono",monospace}
+
+section.prose{margin-top:24px}
+section.prose h2{font-size:16px;font-weight:600;color:var(--primary);margin-bottom:12px}
+section.prose p{color:var(--muted);max-width:76ch;margin-bottom:12px;font-size:13.5px}
+section.prose li{color:var(--muted);margin:6px 0 6px 20px;font-size:13.5px}
+section.prose strong{color:var(--text);font-weight:600}
+section.prose a{color:var(--accent);text-decoration:none}
+section.prose a:hover{text-decoration:underline}
+
+details{margin-top:16px;border:1px solid var(--border);border-radius:.5rem;overflow:hidden}
+summary{cursor:pointer;font-weight:600;font-size:13.5px;padding:13px 16px;color:var(--primary);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+summary:hover{color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{text-align:right;padding:9px 12px;border-bottom:1px solid var(--border);font-family:"Space Mono",monospace}
+th:first-child,td:first-child{text-align:left;font-family:"Inter",sans-serif}
+thead th{color:var(--muted);font-weight:600;font-family:"Inter",sans-serif;background:#F8FAFC}
+tbody tr{transition:background-color .1s ease}
+tbody tr:hover{background:#F8FAFC}
+.msg{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+.loading{padding:24px;font-size:13px;color:var(--muted)}
+.loading .blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.foot-note{font-size:12px;color:var(--muted);margin-top:14px}
+footer{margin-top:28px;background:var(--primary);color:#CBD9E8;border-radius:.5rem;
+  padding:18px 20px;font-size:12px;text-align:center;line-height:1.7}
+footer strong{color:#fff}
+footer a{color:#fff}
+@media (prefers-reduced-motion:reduce){
+  .loading .blink{animation:none}
+  .card,.tile,.tooltip,.legend span,.chart-box .hl-line,tbody tr{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<div class="wrap">
+
+<header class="top">
+  <div class="head-row">
+    <div class="logo-badge">🌮</div>
+    <h1>Índice TACO</h1>
+  </div>
+  <p class="sub">Basado en <strong>Signum Global Advisors</strong>: mide, en desviaciones estándar,
+  la presión de los mercados sobre Trump. Históricamente, los giros de política («TACO»:
+  <em>Trump Always Chickens Out</em>) llegan cuando el movimiento alcanza <strong>2.3–3.4 σ</strong>
+  (promedio <strong>2.9 σ</strong>).</p>
+</header>
+
+<main id="main">
+<div id="app">
+  <div class="card"><div class="loading" aria-live="polite" aria-busy="true">Cargando datos<span class="blink">…</span></div></div>
+</div>
+
+<section class="prose">
+  <h2>Metodología</h2>
+  <p>Basado en el <em>Hormuz TACO Index</em> de Signum («weighted z-score from 7-Mar
+  baseline»): cada variable se convierte a <em>z-score</em> contra su nivel en la
+  <strong>línea base fija del 7 de marzo de 2026</strong> (última sesión previa), con la
+  desviación estándar de los 60 días hábiles anteriores a la base, orientado para que un
+  valor positivo signifique presión sobre la Casa Blanca:</p>
+  <ul>
+    <li><strong>Brent</strong> — el alza del crudo presiona (inflación, bencinas).</li>
+    <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
+    <li><strong>S&amp;P 500</strong> — la caída de la bolsa presiona (signo invertido).</li>
+    <li><strong>Cruces por el Estrecho de Ormuz</strong> — la caída del tránsito presiona
+    (signo invertido). Combina dos fuentes priorizando siempre el dato más reciente:
+    el monitor público de <a href="https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
+    rel="noopener">Lloyd's List Intelligence</a> (diario, al día) e
+    <a href="https://portwatch.imf.org/" rel="noopener">IMF PortWatch</a> (FMI + Oxford,
+    historia larga y respaldo; actualiza semanalmente). Donde ambas se superponen manda
+    Lloyd's; PortWatch se reescala a unidades comparables con la mediana del período común.
+    La serie se suaviza con promedio móvil de 7 días.</li>
+  </ul>
+  <p>El índice es la <strong>suma ponderada</strong> de los z-scores. Signum no publica
+  sus pesos, así que se calibraron por mínimos cuadrados contra los siete puntos anotados
+  en su gráfico público (error medio ~0.35 σ): Brent 0.52 · Tesoro 10a 0.22 ·
+  S&amp;P 500 0.05 · Ormuz 1.13. Si una fuente de Ormuz falla se usa la otra; si ambas
+  fallan, el índice sigue con los componentes de mercado. Los datos se actualizan cada
+  día hábil tras el cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en
+  Yahoo Finance).</p>
+</section>
+</main>
+
+<footer>
+  Basado en Signum Global Advisors. Indicador educativo — no es asesoría de inversión y no
+  está afiliado a Signum ni a Lloyd's List.<br>
+  Made by <strong><a href="https://x.com/teclaro" rel="noopener">@teclaro</a></strong> for Araucaria Labs.
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const FMT = new Intl.NumberFormat("es-CL",{minimumFractionDigits:2,maximumFractionDigits:2});
+const DFMT = new Intl.DateTimeFormat("es-CL",{day:"numeric",month:"short",year:"numeric"});
+const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+const el = (tag,attrs={},parent=null)=>{
+  const ns = "http://www.w3.org/2000/svg";
+  const node = ["svg","defs","pattern","g","path","line","rect","circle","text"].includes(tag)
+    ? document.createElementNS(ns,tag) : document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
+  if(parent) parent.appendChild(node);
+  return node;
+};
+const parseDate = s => new Date(s+"T12:00:00");
+const tagText = (svg,attrs,text,pad=3)=>{
+  const t=el("text",attrs,svg); t.textContent=text;
+  const bb=t.getBBox();
+  const bg=el("rect",{x:bb.x-pad,y:bb.y-pad,width:bb.width+pad*2,height:bb.height+pad*2,
+    fill:css("--card")});
+  svg.insertBefore(bg,t);
+  return t;
+};
+
+function statusFor(v,th){
+  if(v>=th.avg) return {cls:"alert", tag:"Alerta", txt:"Pivote esperado", color:css("--destructive")};
+  if(v>=th.low) return {cls:"caution", tag:"Precaución", txt:"Acercándose a la zona de pivote", color:css("--amber")};
+  return {cls:"nominal", tag:"Nominal", txt:"Sin señal de pivote", color:css("--green")};
+}
+
+/* ---- gráfico de líneas con crosshair + tooltip ---- */
+function lineChart(box, rows, seriesDefs, opts){
+  const W=920, H=340, m={t:16,r:16,b:30,l:44};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const xs = rows.map(r=>parseDate(r.date).getTime());
+  const x0=xs[0], x1=xs[xs.length-1];
+  let vmin=Infinity, vmax=-Infinity;
+  for(const r of rows) for(const s of seriesDefs){
+    const v=r[s.key]; if(v==null) continue;
+    if(v<vmin) vmin=v; if(v>vmax) vmax=v;
+  }
+  if(opts.band){ vmin=Math.min(vmin,-1); vmax=Math.max(vmax,opts.band.high+0.3); }
+  const pad=(vmax-vmin)*0.06; vmin-=pad; vmax+=pad;
+  const X=t=>m.l+(t-x0)/(x1-x0)*iw;
+  const Y=v=>m.t+(vmax-v)/(vmax-vmin)*ih;
+
+  const svg = el("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":opts.label},box);
+
+  if(opts.band){
+    el("rect",{x:m.l,y:Y(opts.band.high),width:iw,height:Y(opts.band.low)-Y(opts.band.high),
+      fill:css("--destructive"),opacity:.08},svg);
+    el("line",{x1:m.l,x2:m.l+iw,y1:Y(opts.band.avg),y2:Y(opts.band.avg),
+      stroke:css("--destructive"),"stroke-width":1.5,"stroke-opacity":.6,"stroke-dasharray":"5 3"},svg);
+    tagText(svg,{x:m.l+4,y:Y(opts.band.avg)-7,"text-anchor":"start","font-size":10.5,
+      fill:css("--muted")},`Promedio de pivote: ${opts.band.avg}σ`);
+  }
+
+  const range=vmax-vmin;
+  const step=range>20?5:range>8?2:range>4?1:0.5;
+  for(let v=Math.ceil(vmin/step)*step; v<=vmax; v+=step){
+    const y=Y(v);
+    el("line",{x1:m.l,x2:m.l+iw,y1:y,y2:y,stroke:css("--border"),"stroke-width":1},svg);
+    el("text",{x:m.l-8,y:y+4,"text-anchor":"end","font-size":10.5,fill:css("--muted"),
+      "font-family":"Space Mono, monospace"},svg).textContent=(step<1?v.toFixed(1):Math.round(v));
+  }
+  el("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:css("--border"),"stroke-width":1.5},svg);
+  const months=new Set();
+  for(const t of xs){
+    const d=new Date(t), k=d.getFullYear()+"-"+d.getMonth();
+    if(months.has(k)) continue; months.add(k);
+    if(d.getDate()>7) continue;
+    el("text",{x:X(t),y:H-8,"text-anchor":"middle","font-size":10.5,fill:css("--muted")},svg)
+      .textContent=d.toLocaleDateString("es-CL",{month:"short"}).replace(".","");
+  }
+
+  const pivotPts=[];
+  for(const p of (opts.pivots||[])){
+    const t=parseDate(p.date).getTime();
+    if(t<x0||t>x1) continue;
+    const c=css(p.type==="hawkish"?"--destructive":"--green");
+    el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:c,"stroke-width":1,"stroke-opacity":.5},svg);
+    el("circle",{cx:X(t),cy:m.t+5,r:4,fill:c,stroke:css("--card"),"stroke-width":2},svg);
+    pivotPts.push({x:X(t),p,c});
+  }
+
+  const seriesEls={};
+  for(const s of seriesDefs){
+    const d=rows.map((r,i)=>(r[s.key]==null?"":`${i?"L":"M"}${X(xs[i]).toFixed(1)} ${Y(r[s.key]).toFixed(1)}`)).join("");
+    const path=el("path",{d,fill:"none",stroke:css(s.color),"stroke-width":2.25,class:"hl-line",
+      "data-key":s.key,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    const last=rows[rows.length-1];
+    const endDot=el("circle",{cx:X(xs[xs.length-1]),cy:Y(last[s.key]),r:4.5,fill:css(s.color),
+      class:"hl-line","data-key":s.key,stroke:css("--card"),"stroke-width":2},svg);
+    seriesEls[s.key]={path,endDot};
+  }
+  const main=seriesDefs[0], lastRow=rows[rows.length-1];
+  tagText(svg,{x:m.l+iw-2,y:Y(lastRow[main.key])-10,"text-anchor":"end","font-size":12,
+    "font-weight":700,fill:css("--primary"),"font-family":"Space Mono, monospace"},
+    `${FMT.format(lastRow[main.key])}σ`,4);
+
+  const cross=el("line",{y1:m.t,y2:m.t+ih,stroke:css("--accent"),"stroke-width":1,"stroke-opacity":0},svg);
+  const dots=seriesDefs.map(s=>el("circle",{r:5,fill:css("--accent"),stroke:css("--card"),
+    "stroke-width":2,opacity:0},svg));
+  const tt=el("div",{class:"tooltip"},box);
+  const hit=el("rect",{x:m.l,y:m.t,width:iw,height:ih,fill:"transparent","data-role":"hit"},svg);
+  hit.addEventListener("pointermove",ev=>{
+    const rect=svg.getBoundingClientRect();
+    const px=(ev.clientX-rect.left)*(W/rect.width);
+    const t=x0+(px-m.l)/iw*(x1-x0);
+    let i=0; while(i<xs.length-1 && Math.abs(xs[i+1]-t)<Math.abs(xs[i]-t)) i++;
+    const r=rows[i], cx=X(xs[i]);
+    cross.setAttribute("x1",cx); cross.setAttribute("x2",cx);
+    cross.setAttribute("stroke-opacity",.5);
+    seriesDefs.forEach((s,k)=>{
+      dots[k].setAttribute("cx",cx); dots[k].setAttribute("cy",Y(r[s.key]));
+      dots[k].setAttribute("opacity",1);
+    });
+    tt.classList.add("is-visible");
+    tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(r.date))}</div>`+
+      seriesDefs.map(s=>`<div class="tt-row"><span>${s.name}</span><b>${FMT.format(r[s.key])}</b></div>`).join("");
+    const bw=box.clientWidth, ttw=tt.offsetWidth||160;
+    let left=cx/W*bw+14; if(left+ttw>bw-4) left=cx/W*bw-ttw-14;
+    tt.style.left=left+"px";
+    tt.style.top=Math.max(0,(ev.clientY-rect.top)*(H/rect.height)/H*box.clientHeight-40)+"px";
+  });
+  hit.addEventListener("pointerleave",()=>{
+    cross.setAttribute("stroke-opacity",0);
+    dots.forEach(d=>d.setAttribute("opacity",0));
+    tt.classList.remove("is-visible");
+  });
+  for(const {x,p,c} of pivotPts){
+    const pr=el("rect",{x:x-8,y:m.t,width:16,height:ih,fill:"transparent","data-role":"pivot"},svg);
+    pr.style.cursor="help";
+    const show=ev=>{
+      cross.setAttribute("stroke-opacity",0);
+      dots.forEach(d=>d.setAttribute("opacity",0));
+      tt.classList.add("is-visible");
+      tt.innerHTML=`<div class="tt-date">${DFMT.format(parseDate(p.date))}</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:${c};flex:none"></span>
+          <b style="color:var(--text)">${p.type==="hawkish"?"Hawkish (endurece)":"Dovish (se ablanda)"}</b></div>
+        <div style="color:var(--muted);max-width:230px">${p.label||""}</div>`;
+      const bw=box.clientWidth, ttw=tt.offsetWidth||190;
+      let left=x/W*bw+14; if(left+ttw>bw-4) left=x/W*bw-ttw-14;
+      tt.style.left=left+"px";
+      const rect=svg.getBoundingClientRect();
+      tt.style.top=Math.max(0,(ev.clientY-rect.top)/rect.height*box.clientHeight-44)+"px";
+    };
+    pr.addEventListener("pointerenter",show);
+    pr.addEventListener("pointermove",show);
+    pr.addEventListener("pointerleave",()=>{tt.classList.remove("is-visible");});
+  }
+  return {seriesEls};
+}
+
+function deltaTag(rows,i,key,invert){
+  if(i<1) return "";
+  const cur=rows[i][key], prev=rows[i-1][key];
+  if(cur==null||prev==null) return "";
+  let diff=cur-prev; if(invert) diff=-diff;
+  if(Math.abs(diff)<1e-9) return "";
+  const up=diff>0;
+  return `<span class="delta ${up?"up":"down"}">${up?"▲":"▼"}</span>`;
+}
+
+function render(data){
+  const app=document.getElementById("app");
+  app.innerHTML="";
+  const rows=data.rows, last=rows[rows.length-1], th=data.thresholds, i=rows.length-1;
+  const W=data.weights||{brent:1,y10:1,spx:1,hormuz:1};
+  for(const r of rows) for(const n of ["brent","y10","spx","hormuz"])
+    if(r["z_"+n]!=null) r["c_"+n]=+(W[n]*r["z_"+n]).toFixed(3);
+  const st=statusFor(last.taco,th);
+
+  const tiles=el("div",{class:"tiles"},app);
+  const hero=el("div",{class:"tile hero"},tiles);
+  hero.style.setProperty("--tile-accent",st.color);
+  hero.innerHTML=`<div class="label">Índice TACO hoy</div>
+    <div class="value">${FMT.format(last.taco)}<span class="sigma"> σ</span></div>
+    <div class="status ${st.cls}"><span class="dot"></span>${st.tag} · ${st.txt}</div>
+    <div class="detail">Umbral de pivote: ${th.low}–${th.high} σ · dato al ${DFMT.format(parseDate(last.date))}</div>`;
+  const comps=[
+    {key:"c_brent", lvl:"brent", name:"Brent",  color:"--c2", unit:" US$", invert:false},
+    {key:"c_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--c3", unit:"%", invert:false},
+    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--c1", unit:"", invert:true},
+    {key:"c_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--c4", unit:" naves/día", invert:true},
+  ].filter(c=>last[c.key]!=null);
+  const compTiles=[];
+  for(const c of comps){
+    const t=el("div",{class:"tile can-hover"},tiles);
+    t.innerHTML=`<div class="label"><span class="key" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${css(c.color)};margin-right:6px;vertical-align:middle"></span>${c.name} · aporte</div>
+      <div class="value">${last[c.key]>0?"+":""}${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
+      <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${deltaTag(rows,i,c.lvl,c.invert)}${
+        c.key==="c_hormuz"&&data.hormuz_today
+          ?` · ${data.hormuz_today.total} tránsitos el ${data.hormuz_today.date}`+
+           (data.hormuz_today.dark?` (${data.hormuz_today.dark} dark)`:"")
+          :c.key==="c_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
+    compTiles.push({key:c.key,el:t});
+  }
+
+  const card1=el("div",{class:"card"},app);
+  card1.innerHTML=`<h2>Índice compuesto</h2>
+    <div class="hint">Z ponderado contra la línea base fija del 7-mar-2026, como lo define Signum. La franja marca la zona de pivote histórica.</div>`;
+  const fig1=el("figure",{},card1);
+  const box1=el("div",{class:"chart-box"},fig1);
+  lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--c2"}],
+    {label:"Índice TACO en el tiempo",band:th,pivots:data.pivots});
+  el("figcaption",{},fig1).textContent="Verticales: pivotes observados — verde dovish (se ablanda), rojo hawkish (endurece). Pasa el mouse para ver la noticia.";
+
+  const card2=el("div",{class:"card"},app);
+  card2.innerHTML=`<h2>Componentes</h2>
+    <div class="hint">Aporte ponderado de cada componente (peso × z): positivo = presión sobre Trump. La suma de los cuatro es el índice.</div>
+    <div class="legend">${comps.map(c=>`<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
+  const box2=el("div",{class:"chart-box"},el("figure",{},card2));
+  const chart2=lineChart(box2,rows,comps.map(c=>({key:c.key,name:c.name,color:c.color})),
+    {label:"Componentes del índice TACO",pivots:data.pivots});
+
+  const allKeys=Object.keys(chart2.seriesEls);
+  const highlight=key=>{
+    for(const k of allKeys){
+      const {path,endDot}=chart2.seriesEls[k];
+      const on=k===key;
+      path.setAttribute("stroke-width",on?3.5:2.25);
+      path.classList.toggle("hl-dim",!on);
+      endDot.classList.toggle("hl-dim",!on);
+    }
+  };
+  const clearHighlight=()=>{
+    for(const k of allKeys){
+      const {path,endDot}=chart2.seriesEls[k];
+      path.setAttribute("stroke-width",2.25);
+      path.classList.remove("hl-dim"); endDot.classList.remove("hl-dim");
+    }
+  };
+  for(const {key,el:tileEl} of compTiles){
+    tileEl.addEventListener("pointerenter",()=>{tileEl.classList.add("is-active"); highlight(key);});
+    tileEl.addEventListener("pointerleave",()=>{tileEl.classList.remove("is-active"); clearHighlight();});
+  }
+  const legendSpans=[...card2.querySelectorAll(".legend span")];
+  comps.forEach((c,idx)=>{
+    const span=legendSpans[idx]; if(!span) return;
+    span.addEventListener("pointerenter",()=>{span.classList.add("is-active"); highlight(c.key);});
+    span.addEventListener("pointerleave",()=>{span.classList.remove("is-active"); clearHighlight();});
+  });
+
+  const det=el("details",{},app);
+  el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
+  const tbl=el("table",{},det);
+  const hasHz=last.c_hormuz!=null;
+  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent</th><th>10a</th><th>S&P</th>${
+    hasHz?"<th>Ormuz</th>":""}<th>Brent US$</th><th>10a %</th><th>S&P 500</th>${
+    hasHz?"<th>Ormuz n/d</th>":""}</tr></thead>`;
+  const tb=el("tbody",{},tbl);
+  const fmt=v=>v==null?"—":FMT.format(v);
+  for(const r of rows.slice(-30).reverse()){
+    const tr=el("tr",{},tb);
+    tr.innerHTML=`<td>${r.date}</td><td>${fmt(r.taco)}</td><td>${fmt(r.c_brent)}</td>
+      <td>${fmt(r.c_y10)}</td><td>${fmt(r.c_spx)}</td>${hasHz?`<td>${fmt(r.c_hormuz)}</td>`:""}
+      <td>${fmt(r.brent)}</td><td>${fmt(r.y10)}</td><td>${fmt(r.spx)}</td>${
+      hasHz?`<td>${fmt(r.hormuz)}</td>`:""}`;
+  }
+  const note=el("p",{class:"foot-note"},app);
+  note.textContent=`Actualizado: ${data.updated}. ${data.note}`;
+}
+
+fetch("data/taco.json")
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch(()=>{
+    document.getElementById("app").innerHTML=
+      `<div class="msg">Sin datos aún. Ejecuta el workflow «Actualizar datos del indice TACO»
+      en GitHub Actions para generar <code>data/taco.json</code>.</div>`;
+  });
+</script>
+</body>
+</html>
