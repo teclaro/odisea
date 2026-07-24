@@ -64,12 +64,18 @@ HORMUZ_ID = "chokepoint6"
 LLOYDS_URL = "https://lmiu.lloydslist.com/strait-of-hormuz-transit-monitor.html"
 
 PIVOTS = [
-    {"date": "2026-03-22", "type": "dovish", "label": "Trump acepta dialogar"},
-    {"date": "2026-04-07", "type": "dovish", "label": "Aceptacion del cese al fuego"},
-    {"date": "2026-05-18", "type": "dovish", "label": "Trump frena ataque para negociar"},
-    {"date": "2026-05-29", "type": "hawkish", "label": "Trump exige cambios al borrador del MoU"},
-    {"date": "2026-06-11", "type": "dovish", "label": "Trump apura la firma del MoU"},
-    {"date": "2026-07-07", "type": "hawkish", "label": "EE.UU. retira el waiver petrolero"},
+    {"date": "2026-03-22", "type": "dovish", "label": "Trump acepta dialogar",
+     "label_en": "Trump agrees to talks"},
+    {"date": "2026-04-07", "type": "dovish", "label": "Aceptacion del cese al fuego",
+     "label_en": "Ceasefire accepted"},
+    {"date": "2026-05-18", "type": "dovish", "label": "Trump frena ataque para negociar",
+     "label_en": "Trump holds off attack to negotiate"},
+    {"date": "2026-05-29", "type": "hawkish", "label": "Trump exige cambios al borrador del MoU",
+     "label_en": "Trump demands edits to draft MoU"},
+    {"date": "2026-06-11", "type": "dovish", "label": "Trump apura la firma del MoU",
+     "label_en": "Trump rushes MoU finalization"},
+    {"date": "2026-07-07", "type": "hawkish", "label": "EE.UU. retira el waiver petrolero",
+     "label_en": "US pulls oil waiver"},
 ]
 
 
@@ -365,7 +371,7 @@ def main():
         "hormuz_last": hormuz_last,
         "hormuz_sources": hormuz_sources,
         "hormuz_today": hormuz_today,
-        "note": ("Replica no oficial del Hormuz TACO Index de Signum Global "
+        "note": ("Basado en el Hormuz TACO Index de Signum Global "
                  "Advisors: z ponderado contra linea base fija del 7-mar-2026, "
                  "pesos calibrados contra su grafico publicado. Ormuz: Lloyd's "
                  "List (diario) + IMF PortWatch (respaldo), promedio movil 7d. "
