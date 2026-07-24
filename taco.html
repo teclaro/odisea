@@ -109,9 +109,11 @@ footer a{color:var(--ink-2)}
 
 <section class="prose">
   <h2>Metodología</h2>
-  <p>Para cada variable se calcula el <em>z-score</em> del nivel actual contra la media y
-  desviación estándar móviles de los 60 días hábiles previos, orientado para que un valor
-  positivo signifique presión sobre la Casa Blanca:</p>
+  <p>Réplica del <em>Hormuz TACO Index</em> de Signum («weighted z-score from 7-Mar
+  baseline»): cada variable se convierte a <em>z-score</em> contra su nivel en la
+  <strong>línea base fija del 7 de marzo de 2026</strong> (última sesión previa), con la
+  desviación estándar de los 60 días hábiles anteriores a la base, orientado para que un
+  valor positivo signifique presión sobre la Casa Blanca:</p>
   <ul>
     <li><strong>Brent</strong> — el alza del crudo presiona (inflación, bencinas).</li>
     <li><strong>Tesoro USA a 10 años</strong> — el alza del rendimiento presiona (costo de financiamiento).</li>
@@ -125,15 +127,19 @@ footer a{color:var(--ink-2)}
     Lloyd's; PortWatch se reescala a unidades comparables con la mediana del período común.
     La serie se suaviza con promedio móvil de 7 días.</li>
   </ul>
-  <p>El índice es el promedio de los z-scores disponibles (los cuatro cuando PortWatch
-  responde; los tres de mercado si no). Los datos se actualizan cada día hábil tras el
-  cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en Yahoo Finance).</p>
+  <p>El índice es la <strong>suma ponderada</strong> de los z-scores. Signum no publica
+  sus pesos, así que se calibraron por mínimos cuadrados contra los siete puntos anotados
+  en su gráfico público (error medio ~0.35 σ): Brent 0.52 · Tesoro 10a 0.22 ·
+  S&amp;P 500 0.05 · Ormuz 1.13. Si una fuente de Ormuz falla se usa la otra; si ambas
+  fallan, el índice sigue con los componentes de mercado. Los datos se actualizan cada
+  día hábil tras el cierre de Wall Street vía GitHub Actions (Stooq, con respaldo en
+  Yahoo Finance).</p>
 </section>
 
 <footer>
   Réplica educativa — no es asesoría de inversión y no está afiliada a Signum Global Advisors
-  ni a MarketWatch. Pivotes históricos marcados: 22 mar 2026 (negociaciones de cese al fuego),
-  7 abr 2026 (aceptación), 18 may 2026 (memorando de entendimiento).
+  ni a MarketWatch ni a Lloyd's List. Pivotes marcados según el gráfico de Signum (2026):
+  dovish 22-mar, 7-abr, 18-may, 11-jun · hawkish 29-may, 7-jul.
 </footer>
 
 </div>
@@ -207,14 +213,14 @@ function lineChart(box, rows, seriesDefs, opts){
   }
 
   // pivotes históricos
-  let pi=0;
   for(const p of (opts.pivots||[])){
     const t=parseDate(p.date).getTime();
     if(t<x0||t>x1) continue;
-    el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:css("--muted"),
-      "stroke-width":1,"stroke-opacity":.5},svg);
-    el("text",{x:X(t)+4,y:m.t+12+(pi++%2)*13,"font-size":10.5,fill:css("--muted")},svg)
-      .textContent="pivote";
+    const c=css(p.type==="hawkish"?"--crit":"--good");
+    el("line",{x1:X(t),x2:X(t),y1:m.t,y2:m.t+ih,stroke:c,
+      "stroke-width":1,"stroke-opacity":.45},svg);
+    el("circle",{cx:X(t),cy:m.t+5,r:4,fill:c,stroke:css("--surface"),
+      "stroke-width":2},svg);
   }
 
   // series
@@ -269,6 +275,9 @@ function render(data){
   const app=document.getElementById("app");
   app.innerHTML="";
   const rows=data.rows, last=rows[rows.length-1], th=data.thresholds;
+  const W=data.weights||{brent:1,y10:1,spx:1,hormuz:1};
+  for(const r of rows) for(const n of ["brent","y10","spx","hormuz"])
+    if(r["z_"+n]!=null) r["c_"+n]=+(W[n]*r["z_"+n]).toFixed(3);
   const st=statusFor(last.taco,th);
 
   // tiles
@@ -279,36 +288,36 @@ function render(data){
     <div class="status"><span class="dot" style="background:${st.color}"></span>${st.icon} ${st.txt}</div>
     <div class="detail">Umbral de pivote: ${th.low}–${th.high} σ · dato al ${DFMT.format(parseDate(last.date))}</div>`;
   const comps=[
-    {key:"z_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
-    {key:"z_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--s3", unit:"%"},
-    {key:"z_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
-    {key:"z_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--s4", unit:" naves/día"},
+    {key:"c_brent", lvl:"brent", name:"Brent",  color:"--s2", unit:" US$"},
+    {key:"c_y10",   lvl:"y10",   name:"Tesoro 10 años", color:"--s3", unit:"%"},
+    {key:"c_spx",   lvl:"spx",   name:"S&P 500 (invertido)", color:"--s1", unit:""},
+    {key:"c_hormuz",lvl:"hormuz",name:"Cruces Ormuz (invertido)", color:"--s4", unit:" naves/día"},
   ].filter(c=>last[c.key]!=null);
   for(const c of comps){
     const t=el("div",{class:"tile"},tiles);
-    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name}</div>
-      <div class="value">${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
+    t.innerHTML=`<div class="label"><span class="key" style="background:${css(c.color)}"></span>${c.name} · aporte</div>
+      <div class="value">${last[c.key]>0?"+":""}${FMT.format(last[c.key])}<span class="sigma"> σ</span></div>
       <div class="detail">Nivel: ${FMT.format(last[c.lvl])}${c.unit}${
-        c.key==="z_hormuz"&&data.hormuz_today
+        c.key==="c_hormuz"&&data.hormuz_today
           ?` · ${data.hormuz_today.total} tránsitos el ${data.hormuz_today.date}`+
            (data.hormuz_today.dark?` (${data.hormuz_today.dark} dark)`:"")
-          :c.key==="z_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
+          :c.key==="c_hormuz"&&data.hormuz_last?` · dato al ${data.hormuz_last}`:""}</div>`;
   }
 
   // chart principal
   const card1=el("div",{class:"card"},app);
   card1.innerHTML=`<h2>Índice compuesto</h2>
-    <div class="hint">Promedio de los z-scores orientados (ventana de 60 días hábiles). La franja roja marca la zona de pivote histórica.</div>`;
+    <div class="hint">Z ponderado contra la línea base fija del 7-mar-2026, como lo define Signum. La franja roja marca la zona de pivote histórica.</div>`;
   const fig1=el("figure",{},card1);
   const box1=el("div",{class:"chart-box"},fig1);
   lineChart(box1,rows,[{key:"taco",name:"Índice TACO",color:"--ink"}],
     {label:"Índice TACO en el tiempo",band:th,pivots:data.pivots});
-  el("figcaption",{},fig1).textContent="Las líneas verticales marcan pivotes de política ya observados.";
+  el("figcaption",{},fig1).textContent="Verticales: pivotes observados — verde dovish (se ablanda), rojo hawkish (endurece).";
 
   // chart de componentes
   const card2=el("div",{class:"card"},app);
   card2.innerHTML=`<h2>Componentes</h2>
-    <div class="hint">Cada z-score orientado: positivo = presión sobre Trump.</div>
+    <div class="hint">Aporte ponderado de cada componente (peso × z): positivo = presión sobre Trump. La suma de los cuatro es el índice.</div>
     <div class="legend">${comps.map(c=>
       `<span><i style="background:${css(c.color)}"></i>${c.name}</span>`).join("")}</div>`;
   const box2=el("div",{class:"chart-box"},el("figure",{},card2));
@@ -319,16 +328,16 @@ function render(data){
   const det=el("details",{},app);
   el("summary",{},det).textContent="Ver datos en tabla (últimos 30 días)";
   const tbl=el("table",{},det);
-  const hasHz=last.z_hormuz!=null;
-  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent σ</th><th>10a σ</th><th>S&P σ</th>${
-    hasHz?"<th>Ormuz σ</th>":""}<th>Brent</th><th>10a %</th><th>S&P 500</th>${
-    hasHz?"<th>Ormuz</th>":""}</tr></thead>`;
+  const hasHz=last.c_hormuz!=null;
+  tbl.innerHTML=`<thead><tr><th>Fecha</th><th>TACO σ</th><th>Brent</th><th>10a</th><th>S&P</th>${
+    hasHz?"<th>Ormuz</th>":""}<th>Brent US$</th><th>10a %</th><th>S&P 500</th>${
+    hasHz?"<th>Ormuz n/d</th>":""}</tr></thead>`;
   const tb=el("tbody",{},tbl);
   const fmt=v=>v==null?"—":FMT.format(v);
   for(const r of rows.slice(-30).reverse()){
     const tr=el("tr",{},tb);
-    tr.innerHTML=`<td>${r.date}</td><td>${fmt(r.taco)}</td><td>${fmt(r.z_brent)}</td>
-      <td>${fmt(r.z_y10)}</td><td>${fmt(r.z_spx)}</td>${hasHz?`<td>${fmt(r.z_hormuz)}</td>`:""}
+    tr.innerHTML=`<td>${r.date}</td><td>${fmt(r.taco)}</td><td>${fmt(r.c_brent)}</td>
+      <td>${fmt(r.c_y10)}</td><td>${fmt(r.c_spx)}</td>${hasHz?`<td>${fmt(r.c_hormuz)}</td>`:""}
       <td>${fmt(r.brent)}</td><td>${fmt(r.y10)}</td><td>${fmt(r.spx)}</td>${
       hasHz?`<td>${fmt(r.hormuz)}</td>`:""}`;
   }
