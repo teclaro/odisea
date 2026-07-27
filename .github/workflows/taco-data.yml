@@ -5,6 +5,8 @@ on:
   schedule:
     # Dias habiles, 22:30 UTC (tras el cierre de Wall Street)
     - cron: "30 22 * * 1-5"
+    # Dias habiles, 12:00 UTC (8am Chile, horario de invierno UTC-4)
+    - cron: "0 12 * * 1-5"
 
 permissions:
   contents: write
