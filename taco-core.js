@@ -71,6 +71,9 @@
    *   valueTag(v)     -> texto de la etiqueta del valor final (con o sin [ ])
    *   monthLabel(date)-> texto del tick de mes en el eje x
    *   uppercaseAxis   bool, mayúsculas en los ticks numéricos del eje y (raro, default false)
+   *   areaFill        bool, sombrea el área entre la serie principal y el cero (solo lectura visual)
+   *   pivotOnSeries   key de seriesDefs: si se da, los puntos de pivote se ubican sobre esa
+   *                   curva (en su valor real) en vez de fijos arriba del gráfico
    *
    * Devuelve {seriesEls} — mapa key -> {path, endDot} para armar el resaltado.
    */
@@ -89,8 +92,33 @@
     const pad = (vmax - vmin) * 0.06; vmin -= pad; vmax += pad;
     const X = (t) => m.l + (t - x0) / (x1 - x0) * iw;
     const Y = (v) => m.t + (vmax - v) / (vmax - vmin) * ih;
+    const nearestIndex = (t) => {
+      let i = 0; while (i < xs.length - 1 && Math.abs(xs[i + 1] - t) < Math.abs(xs[i] - t)) i++;
+      return i;
+    };
 
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": opts.label }, box);
+
+    // area bajo la curva principal (lectura rapida de la forma, no reemplaza la grilla)
+    if (opts.areaFill) {
+      const zeroY = Y(0), key = seriesDefs[0].key;
+      let seg = [];
+      const flush = () => {
+        if (seg.length > 1) {
+          const d = `M${seg[0][0].toFixed(1)} ${zeroY.toFixed(1)} ` +
+            seg.map(([x, y]) => `L${x.toFixed(1)} ${y.toFixed(1)}`).join(" ") +
+            ` L${seg[seg.length - 1][0].toFixed(1)} ${zeroY.toFixed(1)} Z`;
+          el("path", { d, fill: css(seriesDefs[0].color), opacity: .09, stroke: "none" }, svg);
+        }
+        seg = [];
+      };
+      for (let i = 0; i < rows.length; i++) {
+        const v = rows[i][key];
+        if (v == null) { flush(); continue; }
+        seg.push([X(xs[i]), Y(v)]);
+      }
+      flush();
+    }
 
     // banda de umbral + línea de promedio
     if (opts.band) {
@@ -106,7 +134,6 @@
         el("rect", { x: m.l, y: Y(opts.band.high), width: iw, height: Y(opts.band.low) - Y(opts.band.high), fill: css("--chart-danger"), opacity: .08 }, svg);
         el("line", { x1: m.l, x2: m.l + iw, y1: Y(opts.band.avg), y2: Y(opts.band.avg), stroke: css("--chart-danger"), "stroke-width": 1.5, "stroke-opacity": .6, "stroke-dasharray": "5 3" }, svg);
       }
-      tagText(svg, { x: m.l + 4, y: Y(opts.band.avg) - 7, "text-anchor": "start", "font-size": 10.5, "letter-spacing": ".02em", fill: css("--chart-muted") }, opts.band.text);
     }
 
     // grilla y ejes
@@ -134,8 +161,13 @@
       const t = parseDate(p.date).getTime();
       if (t < x0 || t > x1) continue;
       const c = css(p.type === "hawkish" ? "--chart-danger" : "--chart-good");
-      el("line", { x1: X(t), x2: X(t), y1: m.t, y2: m.t + ih, stroke: c, "stroke-width": 1, "stroke-opacity": .55 }, svg);
-      el("circle", { cx: X(t), cy: m.t + 5, r: 4, fill: c, stroke: css("--chart-surface"), "stroke-width": 2 }, svg);
+      let cy = m.t + 5;
+      if (opts.pivotOnSeries) {
+        const v = rows[nearestIndex(t)][opts.pivotOnSeries];
+        if (v != null) cy = Y(v);
+      }
+      el("line", { x1: X(t), x2: X(t), y1: m.t, y2: m.t + ih, stroke: c, "stroke-width": 1, "stroke-opacity": .3 }, svg);
+      el("circle", { cx: X(t), cy, r: 4, fill: c, stroke: css("--chart-surface"), "stroke-width": 2 }, svg);
       pivotPts.push({ x: X(t), p, c });
     }
 
@@ -150,6 +182,9 @@
     }
     const main = seriesDefs[0], lastRow = rows[rows.length - 1];
     tagText(svg, { x: m.l + iw - 2, y: Y(lastRow[main.key]) - 10, "text-anchor": "end", "font-size": 12, "font-weight": 700, fill: css("--chart-ink") }, opts.valueTag(lastRow[main.key]), 4);
+    if (opts.band) {
+      tagText(svg, { x: m.l + 4, y: Y(opts.band.avg) - 7, "text-anchor": "start", "font-size": 10.5, "letter-spacing": ".02em", fill: css("--chart-muted") }, opts.band.text);
+    }
 
     // crosshair + tooltip
     const cross = el("line", { y1: m.t, y2: m.t + ih, stroke: css("--chart-accent"), "stroke-width": 1, "stroke-opacity": 0 }, svg);
