@@ -146,18 +146,27 @@ def fetch_fmp_prices(symbol, d1, d2, apikey):
 
 
 def fetch_fmp_treasury(d1, d2, apikey):
-    """Rendimiento del Tesoro a 10 anos desde el endpoint dedicado de FMP."""
+    """Rendimiento del Tesoro a 10 anos desde el endpoint dedicado de FMP.
+
+    El endpoint limita la cantidad de filas por llamada sin importar el rango
+    pedido, asi que se pagina en tramos cortos y se combinan los resultados.
+    """
     from urllib.parse import urlencode
-    params = urlencode({"from": d1.isoformat(), "to": d2.isoformat(), "apikey": apikey})
-    url = f"https://financialmodelingprep.com/stable/treasury-rates?{params}"
-    data = json.loads(http_get(url))
-    if isinstance(data, dict) and (data.get("Error Message") or data.get("error")):
-        raise RuntimeError(data.get("Error Message") or data.get("error"))
     out = {}
-    for r in data:
-        d, y = r.get("date"), r.get("year10")
-        if d and y is not None:
-            out[str(d)[:10]] = float(y)
+    chunk = timedelta(days=80)
+    cur = d1
+    while cur <= d2:
+        end = min(cur + chunk, d2)
+        params = urlencode({"from": cur.isoformat(), "to": end.isoformat(), "apikey": apikey})
+        url = f"https://financialmodelingprep.com/stable/treasury-rates?{params}"
+        data = json.loads(http_get(url))
+        if isinstance(data, dict) and (data.get("Error Message") or data.get("error")):
+            raise RuntimeError(data.get("Error Message") or data.get("error"))
+        for r in data:
+            d, y = r.get("date"), r.get("year10")
+            if d and y is not None:
+                out[str(d)[:10]] = float(y)
+        cur = end + timedelta(days=1)
     return out
 
 
