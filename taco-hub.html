@@ -269,6 +269,7 @@ function render(data){
     band:{...th,pattern:"soft",text:`Promedio de pivote: ${th.avg}σ`},
     pivots:data.pivots,pivotLabel,eventLabel:p=>p.label||"",monthLabel,
     valueTag:v=>`${FMT.format(v)}σ`,
+    areaFill:true,pivotOnSeries:"taco",
   });
   el("figcaption",{},fig1).textContent="Verticales: pivotes observados — verde dovish (se ablanda), rojo hawkish (endurece). Pasa el mouse para ver la noticia.";
 

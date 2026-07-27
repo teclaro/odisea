@@ -312,6 +312,7 @@ function render(data){
     band:{...th,pattern:"hazard",text:`[ AVG PIVOT ${th.avg}σ ]`},
     pivots:data.pivots,pivotLabel,eventLabel:p=>p.label_en||p.label||"",monthLabel,
     valueTag:v=>`[ ${FMT.format(v)}σ ]`,
+    areaFill:true,pivotOnSeries:"taco",
   });
   el("figcaption",{},fig1).textContent="Verticals: observed pivots — green dovish (softening), red hawkish (hardening). Hover for the news.";
 
