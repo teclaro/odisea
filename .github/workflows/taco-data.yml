@@ -24,6 +24,8 @@ jobs:
           python-version: "3.12"
 
       - name: Generar data/taco.json
+        env:
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
         run: python scripts/fetch_taco_data.py
 
       - name: Commit y push si hay cambios

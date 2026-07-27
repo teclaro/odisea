@@ -29,7 +29,8 @@ nivel del ultimo dia habil <= BASELINE_DATE y sigma la desviacion estandar de
 los WINDOW dias habiles previos a la base. Positivo = presion sobre Trump.
 Indice = suma ponderada (WEIGHTS) de los z disponibles.
 
-Solo usa la libreria estandar; fuentes: Stooq (CSV) con respaldo en Yahoo
+Solo usa la libreria estandar. Fuentes de Brent/10Y/S&P: Financial Modeling
+Prep (si hay FMP_API_KEY en el entorno) con respaldo en Stooq (CSV) y Yahoo
 Finance (JSON). Pensado para correr en GitHub Actions.
 """
 
@@ -37,6 +38,7 @@ import csv
 import gzip
 import io
 import json
+import os
 import re
 import statistics
 import sys
@@ -51,11 +53,20 @@ WEIGHTS = {"brent": 0.52, "y10": 0.22, "spx": 0.05, "hormuz": 1.13}
 HISTORY_DAYS = 900   # calendario: suficiente para la ventana previa a la base
 OUTPUT = Path(__file__).resolve().parent.parent / "data" / "taco.json"
 
+FMP_API_KEY = os.environ.get("FMP_API_KEY")
+
 SERIES = {
     # nombre: (simbolos stooq, simbolo yahoo, orientacion: +1 alza=presion)
     "brent": (["cb.f"], "BZ=F", +1),
     "y10":   (["10usy.b", "10yusy.b"], "^TNX", +1),
     "spx":   (["^spx"], "^GSPC", -1),
+}
+
+# Candidatos de simbolo en Financial Modeling Prep (fuente primaria si hay API key).
+# y10 no usa simbolo: se pide directo al endpoint dedicado de treasury-rates.
+FMP_SYMBOLS = {
+    "brent": ["BZUSD", "BZ=F"],
+    "spx": ["^GSPC", "^SPX"],
 }
 
 PORTWATCH_URL = ("https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/"
@@ -116,6 +127,57 @@ def fetch_yahoo(symbol, d1, d2):
     return out
 
 
+def fetch_fmp_prices(symbol, d1, d2, apikey):
+    """Precio de cierre diario desde FMP (historical-price-eod, fuente primaria)."""
+    from urllib.parse import urlencode
+    params = urlencode({"symbol": symbol, "from": d1.isoformat(), "to": d2.isoformat(),
+                         "apikey": apikey})
+    url = f"https://financialmodelingprep.com/stable/historical-price-eod/full?{params}"
+    data = json.loads(http_get(url))
+    if isinstance(data, dict) and (data.get("Error Message") or data.get("error")):
+        raise RuntimeError(data.get("Error Message") or data.get("error"))
+    rows = data if isinstance(data, list) else data.get("historical", [])
+    out = {}
+    for r in rows:
+        d, c = r.get("date"), r.get("close")
+        if d and c is not None:
+            out[str(d)[:10]] = float(c)
+    return out
+
+
+def fetch_fmp_treasury(d1, d2, apikey):
+    """Rendimiento del Tesoro a 10 anos desde el endpoint dedicado de FMP."""
+    from urllib.parse import urlencode
+    params = urlencode({"from": d1.isoformat(), "to": d2.isoformat(), "apikey": apikey})
+    url = f"https://financialmodelingprep.com/stable/treasury-rates?{params}"
+    data = json.loads(http_get(url))
+    if isinstance(data, dict) and (data.get("Error Message") or data.get("error")):
+        raise RuntimeError(data.get("Error Message") or data.get("error"))
+    out = {}
+    for r in data:
+        d, y = r.get("date"), r.get("year10")
+        if d and y is not None:
+            out[str(d)[:10]] = float(y)
+    return out
+
+
+def fetch_fmp(name, d1, d2, apikey):
+    if name == "y10":
+        data = fetch_fmp_treasury(d1, d2, apikey)
+        print(f"{name}: fmp treasury-rates -> {len(data)} puntos")
+        return data
+    for sym in FMP_SYMBOLS.get(name, []):
+        try:
+            data = fetch_fmp_prices(sym, d1, d2, apikey)
+            if len(data) >= 200:
+                print(f"{name}: fmp {sym} -> {len(data)} puntos")
+                return data
+            print(f"{name}: fmp {sym} devolvio solo {len(data)} puntos")
+        except Exception as exc:
+            print(f"{name}: fmp {sym} fallo: {exc}")
+    raise RuntimeError(f"{name}: fmp sin datos suficientes")
+
+
 def fetch_series(name, stooq_symbols, yahoo_symbol, d1, d2):
     for sym in stooq_symbols:
         try:
@@ -131,6 +193,16 @@ def fetch_series(name, stooq_symbols, yahoo_symbol, d1, d2):
     if len(data) < 200:
         raise RuntimeError(f"{name}: datos insuficientes ({len(data)} puntos)")
     return data
+
+
+def fetch_series_priority(name, stooq_symbols, yahoo_symbol, d1, d2):
+    """FMP primero (si hay API key); Stooq y Yahoo como respaldo."""
+    if FMP_API_KEY:
+        try:
+            return fetch_fmp(name, d1, d2, FMP_API_KEY)
+        except Exception as exc:
+            print(f"{name}: fmp fallo ({exc}), cae a stooq/yahoo")
+    return fetch_series(name, stooq_symbols, yahoo_symbol, d1, d2)
 
 
 def fetch_lloyds_hormuz():
@@ -287,7 +359,7 @@ def main():
     d2 = date.today()
     d1 = d2 - timedelta(days=HISTORY_DAYS)
 
-    raw = {name: fetch_series(name, st, ya, d1, d2)
+    raw = {name: fetch_series_priority(name, st, ya, d1, d2)
            for name, (st, ya, _) in SERIES.items()}
     raw["y10"] = normalize_yield(raw["y10"])
 
