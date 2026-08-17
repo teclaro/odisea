@@ -246,8 +246,6 @@ def fetch_lloyds_hormuz():
     last = max(daily)
     print(f"hormuz: lloydslist -> {len(daily)} dias, ultimo {last} "
           f"({daily[last]:.0f} transitos)")
-    for d in sorted(daily)[-3:]:
-        print(f"hormuz DEBUG {d}: total={daily[d]:.0f} detail={detail[d]}")
     today = {"date": last, "total": round(daily[last]), **detail[last]}
     return daily, today
 
