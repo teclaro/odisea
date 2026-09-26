@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Odisea, en gran formato</title>
+<meta name="description" content="Las catorce escalas de Odiseo en 3D, para ver La Odisea de Nolan sabiendo lo que Homero sabía.">
+<meta property="og:title" content="La Odisea, en gran formato">
+<meta property="og:description" content="Las catorce escalas de Odiseo en 3D, para ver a Nolan sabiendo lo que Homero sabía.">
+<meta property="og:image" content="https://teclaro.github.io/odisea/imax/media/tormenta.jpg">
+<meta property="og:url" content="https://teclaro.github.io/odisea/imax/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@teclaro">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Cpath d='M3 16 Q16 5 29 16 Q16 27 3 16Z' fill='%23b8935a'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%23000'/%3E%3C/svg%3E">
+<link rel="preload" href="fuentes/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/garamond.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="three.module.min.js">
+<style>
+@font-face{font-family:'Archivo';src:url(fuentes/archivo.woff2) format('woff2');font-weight:100 900;font-stretch:62% 125%;font-display:swap}
+@font-face{font-family:'Garamond';src:url(fuentes/garamond.woff2) format('woff2');font-weight:400 800;font-display:swap}
+@font-face{font-family:'Garamond';src:url(fuentes/garamond-it.woff2) format('woff2');font-weight:400 800;font-style:italic;font-display:swap}
+
+:root{
+  --negro:#000;
+  --vino:#3b1424;
+  --mar:#0e1a22;
+  --bronce:#b8935a;
+  --sal:#ece6da;
+  --sal-2:rgba(236,230,218,.76);
+  --brasa:#d2541e;
+  --titulo:'Archivo',system-ui,sans-serif;
+  --texto:'Garamond','EB Garamond',Georgia,serif;
+  --b-cine:92px;
+  --b-imax:44px;
+  --barra:var(--b-cine);
+  --curva:cubic-bezier(.7,0,.18,1);
+  --margen:clamp(20px,6vw,104px);
+}
+*{box-sizing:border-box}
+html{background:#000;color:var(--sal);-webkit-text-size-adjust:100%}
+body{margin:0;font:400 1.125rem/1.6 var(--texto);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body[data-formato="imax"]{--barra:var(--b-imax)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--bronce);outline-offset:3px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+
+/* capas fijas: 3D, rollos de video, velo, grano, franjas */
+#mar{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;background:#05080b}
+.rollo{position:fixed;inset:0;z-index:1;opacity:0;pointer-events:none;background:#000}
+.rollo video,.rollo img{width:100%;height:100%;object-fit:cover;display:block}
+.velo{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 50% 42%,transparent 50%,rgba(0,0,0,.6) 100%)}
+.grano{position:fixed;inset:-100px;z-index:3;pointer-events:none;opacity:.075;mix-blend-mode:overlay;
+  background-size:180px 180px;animation:grano .8s steps(5) infinite}
+@keyframes grano{0%{transform:translate(0,0)}20%{transform:translate(-37px,21px)}40%{transform:translate(19px,-44px)}
+  60%{transform:translate(-12px,33px)}80%{transform:translate(41px,9px)}100%{transform:translate(0,0)}}
+.banda{position:fixed;left:0;right:0;height:var(--barra);background:#000;z-index:20;transition:height 1.5s var(--curva)}
+.banda.sup{top:0}.banda.inf{bottom:0}
+
+/* tablero en la franja superior */
+.tablero{position:fixed;top:0;left:0;right:0;height:44px;z-index:21;display:flex;align-items:center;gap:clamp(12px,2.4vw,32px);
+  padding:0 var(--margen);font:450 .7rem/1 var(--titulo);font-stretch:125%;letter-spacing:.16em}
+.marca{text-decoration:none;white-space:nowrap}
+.ruta{flex:1;display:flex;align-items:center;justify-content:center;gap:0;height:100%}
+.hito{position:relative;flex:1;max-width:46px;height:44px;display:flex;align-items:center}
+.hito::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(236,230,218,.22)}
+.hito::after{content:"";position:relative;width:5px;height:5px;margin:auto;border-radius:50%;background:rgba(236,230,218,.35);transition:background .4s,transform .4s}
+.hito[aria-current="step"]::after{background:var(--bronce);transform:scale(1.9)}
+.hito.pasado::before{background:rgba(184,147,90,.6)}
+.controles{display:flex;gap:clamp(14px,2vw,26px);white-space:nowrap}
+.controles button{letter-spacing:.16em;opacity:.8;transition:opacity .3s}
+.controles button:hover,.controles button[aria-pressed="true"]{opacity:1}
+.controles button[aria-pressed="true"]{color:var(--bronce)}
+.pie-banda{position:fixed;bottom:0;left:0;right:0;height:44px;z-index:21;display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--margen);font:400 .68rem/1 var(--titulo);font-stretch:125%;letter-spacing:.16em;color:var(--sal-2)}
+.pie-banda span{transition:opacity .6s}
+
+/* contenido */
+main{position:relative;z-index:5}
+.marco{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:calc(var(--barra) + 24px) var(--margen) calc(var(--barra) + clamp(28px,7vh,72px));
+  transition:padding 1.5s var(--curva);opacity:var(--o,0);pointer-events:none}
+.marco > *{pointer-events:auto}
+
+/* apertura */
+#apertura{height:190vh}
+#apertura .marco{justify-content:center;align-items:center;text-align:center}
+.titulo{margin:0;font:200 clamp(2.9rem,11vw,10.5rem)/.9 var(--titulo);font-stretch:125%;letter-spacing:.08em;text-transform:uppercase;
+  padding-left:.08em;text-shadow:0 0 60px rgba(0,0,0,.6)}
+.invocacion{margin:clamp(22px,4vh,40px) auto 0;max-width:30em;font:italic 400 clamp(1.1rem,1.8vw,1.45rem)/1.5 var(--texto);color:var(--sal)}
+.fuente{margin:.9em 0 0;font:400 .9rem/1.4 var(--texto);color:var(--sal-2)}
+.zarpar{margin-top:clamp(30px,7vh,70px);display:inline-flex;flex-direction:column;align-items:center;gap:14px;
+  font:400 .68rem/1 var(--titulo);font-stretch:125%;letter-spacing:.2em;color:var(--sal-2)}
+.zarpar::after{content:"";width:1px;height:46px;background:linear-gradient(var(--sal),transparent);animation:bajar 2.4s var(--curva) infinite}
+@keyframes bajar{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}
+  55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* premisa */
+#premisa{height:170vh}
+#premisa .marco{justify-content:center}
+.premisa-titulo{margin:0;max-width:14em;font:400 clamp(2rem,4.6vw,4.1rem)/1.08 var(--texto);letter-spacing:-.005em}
+.premisa{margin:1.1em 0 0;max-width:32em;font-size:clamp(1.08rem,1.35vw,1.28rem);line-height:1.62;color:var(--sal-2)}
+.premisa-nota{margin:1em 0 0;max-width:32em;font:italic 400 1rem/1.5 var(--texto);color:var(--bronce)}
+
+/* escalas */
+.escala{height:230vh}
+.escala .marco::before,#premisa .marco::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.84) 0%,rgba(0,0,0,.45) 40%,transparent 66%),
+             linear-gradient(to right,rgba(0,0,0,.62) 0%,rgba(0,0,0,.2) 42%,transparent 60%)}
+.texto{max-width:35em;transform:translateY(calc((1 - var(--o,0)) * 18px))}
+.numeral{display:block;font:300 .82rem/1 var(--titulo);font-stretch:125%;letter-spacing:.34em;color:var(--bronce)}
+.escala h2{margin:.42em 0 .12em;font:200 clamp(2.3rem,6.4vw,6.2rem)/.94 var(--titulo);font-stretch:125%;letter-spacing:.045em;text-transform:uppercase}
+.lema{margin:0 0 .85em;font:italic 400 clamp(1.3rem,2.2vw,1.85rem)/1.2 var(--texto)}
+.relato{margin:0;font-size:clamp(1.02rem,1.25vw,1.2rem);line-height:1.62;color:var(--sal-2)}
+.clave{margin:1.1em 0 0;padding-left:1em;border-left:1px solid var(--bronce);font:italic 400 clamp(1rem,1.2vw,1.13rem)/1.55 var(--texto);color:var(--sal)}
+.clave b{font:500 .64rem/1 var(--titulo);font-style:normal;font-stretch:125%;letter-spacing:.22em;color:var(--bronce);display:block;margin-bottom:.7em}
+
+/* secciones de cierre sobre fondo oscurecido */
+.cierre{position:relative;padding:clamp(90px,16vh,170px) var(--margen);
+  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.84) 140px,rgba(0,0,0,.9))}
+.cierre h2{margin:0 0 clamp(28px,5vh,56px);max-width:18em;font:400 clamp(1.9rem,3.8vw,3.4rem)/1.1 var(--texto)}
+.elenco{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:clamp(28px,4vw,56px) clamp(28px,5vw,72px);max-width:1180px}
+.elenco h3{margin:0;font:250 1.55rem/1.05 var(--titulo);font-stretch:125%;letter-spacing:.05em;text-transform:uppercase}
+.elenco .rol{margin:.3em 0 .6em;font:italic 400 1.05rem/1.3 var(--texto);color:var(--bronce)}
+.elenco p{margin:0;color:var(--sal-2);font-size:1.05rem;line-height:1.55}
+.elenco .actor{margin-top:.6em;font:400 .64rem/1.3 var(--titulo);font-stretch:125%;letter-spacing:.16em;color:var(--sal)}
+.cantos{max-width:1180px}
+.barra-cantos{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:56px}
+.barra-cantos i{display:block;background:rgba(236,230,218,.14)}
+.barra-cantos i.g1{background:rgba(236,230,218,.28)}.barra-cantos i.g2{background:rgba(236,230,218,.44)}
+.barra-cantos i.g3{background:var(--brasa)}.barra-cantos i.g4{background:var(--bronce)}
+.leyenda-cantos{display:grid;grid-template-columns:4fr 4fr 4fr 12fr;gap:3px;margin-top:14px}
+.leyenda-cantos div{padding-right:10px}
+.leyenda-cantos b{display:block;font:400 .62rem/1.3 var(--titulo);font-stretch:125%;letter-spacing:.14em;color:var(--sal-2)}
+.leyenda-cantos span{display:block;margin-top:.35em;font-size:1rem;line-height:1.35}
+.nota-cantos{margin:clamp(28px,5vh,48px) 0 0;max-width:34em;font-size:clamp(1.1rem,1.4vw,1.3rem);line-height:1.6;color:var(--sal-2)}
+.sala{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:clamp(24px,4vw,56px);max-width:1180px}
+.sala h3{margin:0 0 .5em;font:italic 400 1.35rem/1.25 var(--texto);color:var(--sal)}
+.sala p{margin:0;color:var(--sal-2);line-height:1.55}
+.creditos{padding:clamp(80px,14vh,140px) var(--margen) calc(44px + clamp(60px,10vh,110px));background:#000;text-align:center}
+.creditos .firma{margin:0;font:250 clamp(1.1rem,2vw,1.5rem)/1.2 var(--titulo);font-stretch:125%;letter-spacing:.12em}
+.creditos .firma a{text-decoration:none;border-bottom:1px solid rgba(184,147,90,.6);color:var(--bronce)}
+.creditos .firma a:hover{border-bottom-color:var(--bronce)}
+.creditos .otra{margin:1.4em 0 0;font-style:italic;color:var(--sal-2)}
+
+/* sin 3D o con movimiento reducido */
+body.sin-3d #mar{background:linear-gradient(#0a121a,#02060a)}
+@media (prefers-reduced-motion:reduce){
+  .grano,.zarpar::after{animation:none}
+  .banda,.marco{transition:none}
+}
+@media (max-width:720px){
+  :root{--b-cine:12vh;--b-imax:44px}
+  .ruta{display:none}
+  .tablero{justify-content:space-between}
+  .escala .marco::before{background:linear-gradient(to top,rgba(0,0,0,.86) 0%,rgba(0,0,0,.5) 48%,transparent 72%)}
+  .leyenda-cantos{grid-template-columns:1fr 1fr;row-gap:18px}
+  #premisa .marco{justify-content:flex-end}
+  #premisa .marco::before{background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.6) 55%,transparent 80%)}
+  .pie-banda .derecha{display:none}
+}
+</style>
+</head>
+<body data-formato="cine">
+<canvas id="mar" aria-hidden="true"></canvas>
+<div class="rollo" id="rollo-tormenta" aria-hidden="true"><video muted playsinline loop preload="auto" poster="media/tormenta.jpg" src="media/tormenta.mp4"></video></div>
+<div class="rollo" id="rollo-ojo" aria-hidden="true"><video muted playsinline loop preload="none" poster="media/ojo.jpg" src="media/ojo.mp4"></video></div>
+<div class="rollo" id="rollo-hachas" aria-hidden="true"><video muted playsinline loop preload="none" poster="media/hachas.jpg" src="media/hachas.mp4"></video></div>
+<div class="velo"></div>
+<div class="grano" id="grano"></div>
+<div class="banda sup"></div>
+<div class="banda inf"></div>
+
+<header class="tablero">
+  <a class="marca" href="#apertura" data-t="marca">La Odisea</a>
+  <nav class="ruta" id="ruta" aria-label="Escalas"></nav>
+  <div class="controles">
+    <button type="button" id="boton-sonido" aria-pressed="false" data-t="sonido">Sonido</button>
+    <button type="button" id="boton-idioma" data-t="idioma">English</button>
+  </div>
+</header>
+<div class="pie-banda" aria-hidden="true"><span id="pie-izq"></span><span class="derecha" id="pie-der"></span></div>
+
+<main>
+  <section id="apertura" data-estacion="0">
+    <div class="marco" style="--o:1">
+      <h1 class="titulo" data-t="titulo">La Odisea</h1>
+      <p class="invocacion" data-t="invocacion"></p>
+      <p class="fuente" data-t="fuente"></p>
+      <span class="zarpar" data-t="zarpar"></span>
+    </div>
+  </section>
+  <section id="premisa">
+    <div class="marco">
+      <h2 class="premisa-titulo" data-t="premisaTitulo"></h2>
+      <p class="premisa" data-t="premisa"></p>
+      <p class="premisa-nota" data-t="premisaNota"></p>
+    </div>
+  </section>
+  <div id="escalas"></div>
+  <section class="cierre" id="personajes" data-estacion="15">
+    <h2 data-t="personajesTitulo"></h2>
+    <div class="elenco" id="elenco"></div>
+  </section>
+  <section class="cierre" id="cantos">
+    <h2 data-t="cantosTitulo"></h2>
+    <div class="cantos">
+      <div class="barra-cantos" id="barra-cantos" aria-hidden="true"></div>
+      <div class="leyenda-cantos" id="leyenda-cantos"></div>
+      <p class="nota-cantos" data-t="cantosNota"></p>
+    </div>
+  </section>
+  <section class="cierre" id="sala">
+    <h2 data-t="salaTitulo"></h2>
+    <div class="sala" id="lista-sala"></div>
+  </section>
+  <footer class="creditos">
+    <p class="firma"><span data-t="hechoPor">Hecho por</span> <a href="https://x.com/teclaro" target="_blank" rel="noopener">@teclaro</a></p>
+    <p class="otra"><a id="otra-version" href="../" data-t="otraVersion"></a></p>
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
