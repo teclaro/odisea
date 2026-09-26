@@ -16,12 +16,13 @@ if (!TEXTOS[idioma]) idioma = 'es';
 function construir() {
   const T = TEXTOS.es;
   const cont = $('#escalas');
+  const VARIANTES = ['v-a', 'v-b', 'v-c', 'v-d'];
   cont.innerHTML = T.escalas.map((_, i) => `
-    <section class="escala" id="escala-${i + 1}" data-estacion="${i + 1}">
-      <div class="marco"><div class="texto">
-        <span class="numeral"></span><h2></h2><p class="lema"></p><p class="relato"></p>
-        <p class="clave"><b></b><span></span></p>
-      </div></div>
+    <section class="escala ${VARIANTES[i % 4]}" id="escala-${i + 1}" data-estacion="${i + 1}">
+      <div class="marco">
+        <header class="cabeza"><span class="numeral"></span><h2></h2><p class="lema"></p></header>
+        <div class="panel"><p class="relato"></p><p class="clave"><b></b><span></span></p></div>
+      </div>
     </section>`).join('');
   $('#ruta').innerHTML = T.escalas.map((_, i) => `<button type="button" class="hito" data-ir="${i + 1}"></button>`).join('');
   $('#elenco').innerHTML = T.personajes.map(() => '<article><h3></h3><p class="rol"></p><p class="desc"></p><p class="actor"></p></article>').join('');
@@ -205,6 +206,10 @@ function fijarO(el, o) {
   const v = o.toFixed(3);
   if (el._o !== v) { el._o = v; el.style.setProperty('--o', v); }
 }
+function fijarVar(el, nombre, x) {
+  const v = x.toFixed(3), k = '_' + nombre;
+  if (el[k] !== v) { el[k] = v; el.style.setProperty(nombre, v); }
+}
 let mundo = null, sSuave = 0, ultimaEtiqueta = -1, ultimoCapitulo = 0;
 const puntero = { x: 0, y: 0, tx: 0, ty: 0 };
 addEventListener('pointermove', (e) => { puntero.tx = (e.clientX / innerWidth) * 2 - 1; puntero.ty = -((e.clientY / innerHeight) * 2 - 1); }, { passive: true });
@@ -227,13 +232,19 @@ function cuadro(ahora, dt) {
   for (const sec of secciones) {
     const prog = (y - sec.top) / Math.max(1, sec.alto - vh);
     let o = rampa(prog, -0.02, 0.12) * (1 - rampa(prog, 0.86, 0.98));
+    // coreografia: primero la imagen sola, luego el titulo, luego el panel
+    let ti = rampa(prog, 0.12, 0.24) * (1 - rampa(prog, 0.88, 0.97));
+    let pa = rampa(prog, 0.3, 0.42) * (1 - rampa(prog, 0.85, 0.94));
     const rollo = ROLLOS[sec.n];
     if (rollo) {
       o *= 1 - rampa(prog, 0.44, 0.52);
+      ti *= 1 - rampa(prog, 0.44, 0.5);
+      pa *= 1 - rampa(prog, 0.42, 0.48);
       rollosOp[rollo] = rampa(prog, 0.48, 0.58) * (1 - rampa(prog, 0.9, 0.99));
       if (rollosOp[rollo] > 0.5) pieDer = TEXTOS[idioma].rollo;
     }
-    fijarO(sec.marco, o);
+    if (sec.n > 0) { fijarVar(sec.marco, '--t', ti); fijarVar(sec.marco, '--p', pa); fijarO(sec.marco, 1); }
+    else fijarO(sec.marco, o);
     if (sec.n > 0 && prog > 0.06 && prog < 0.94) { formato = 'imax'; etiqueta = sec.n; }
   }
   fijarRollo('ojo', rollosOp.ojo);

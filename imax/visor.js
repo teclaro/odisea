@@ -16,7 +16,7 @@ const VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(positi
 const FRAG = `
 uniform sampler2D uColA, uProA, uColB, uProB;
 uniform vec2 uEscA, uEscB, uOffA, uOffB, uCenA, uCenB;
-uniform float uZoomA, uZoomB, uMezcla, uDestello, uListoA, uListoB, uTime;
+uniform float uZoomA, uZoomB, uMezcla, uDestello, uListoA, uListoB, uTime, uTipo, uAspecto;
 varying vec2 vUv;
 vec3 toma(sampler2D col, sampler2D pro, vec2 esc, vec2 off, float zoom, vec2 cen){
   vec2 p = (vUv - 0.5) * esc / zoom + cen;
@@ -27,8 +27,20 @@ vec3 toma(sampler2D col, sampler2D pro, vec2 esc, vec2 off, float zoom, vec2 cen
 void main(){
   vec3 a = toma(uColA, uProA, uEscA, uOffA, uZoomA, uCenA) * uListoA;
   vec3 b = toma(uColB, uProB, uEscB, uOffB, uZoomB, uCenB) * uListoB;
-  float m = uMezcla;
-  vec3 c = mix(a, b, m) * (1.0 - 0.5 * smoothstep(0.2, 0.5, m));
+  float T = uMezcla;
+  vec3 c;
+  if (uTipo < 0.5) {                       // fundido encadenado
+    c = mix(a, b, smoothstep(0.0, 1.0, T));
+  } else if (uTipo < 1.5) {                // paso por negro
+    c = T < 0.5 ? a * (1.0 - T * 2.0) : b * ((T - 0.5) * 2.0);
+  } else if (uTipo < 2.5) {                // barrido lateral de borde suave
+    float w = T * 1.4 - 0.2;
+    c = mix(b, a, smoothstep(w - 0.2, w + 0.2, vUv.x));
+  } else {                                 // iris que se abre desde el centro
+    float d = length((vUv - 0.5) * vec2(uAspecto, 1.0));
+    float r = T * (0.6 * uAspecto + 0.6);
+    c = mix(b, a, smoothstep(r - 0.18, r, d));
+  }
   c += uDestello * vec3(0.5, 0.56, 0.7) * 0.5;
   gl_FragColor = vec4(c, 1.0);
 }`;
@@ -48,7 +60,7 @@ export function crearMundo(lienzo) {
     uCenA: { value: new THREE.Vector2(0.5, 0.5) }, uCenB: { value: new THREE.Vector2(0.5, 0.5) },
     uOffA: { value: new THREE.Vector2() }, uOffB: { value: new THREE.Vector2() },
     uZoomA: { value: 1 }, uZoomB: { value: 1 }, uMezcla: { value: 0 }, uDestello: { value: 0 },
-    uListoA: { value: 0 }, uListoB: { value: 0 }, uTime: { value: 0 },
+    uListoA: { value: 0 }, uListoB: { value: 0 }, uTime: { value: 0 }, uTipo: { value: 0 }, uAspecto: { value: 1.78 },
   };
   escena.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: u, vertexShader: VERT, fragmentShader: FRAG, depthTest: false })));
 
@@ -102,13 +114,16 @@ export function crearMundo(lienzo) {
   }
 
   function actualizar(s, t, dt, puntero) {
-    // cada toma domina su escala; el fundido ocurre solo al cruzar la mitad entre dos escalas
+    // cada toma domina su escala; la transicion ocurre solo al cruzar la mitad entre dos escalas
     const i = Math.round(s), local = s - i;
-    const j = local >= 0 ? i + 1 : i - 1;
-    const x = Math.abs(local);
-    u.uMezcla.value = x > 0.36 ? ((x - 0.36) / 0.14) * 0.5 : 0;
-    fijar('A', i, Math.min(1, Math.max(0, local + 0.5)), t, puntero);
-    fijar('B', j, Math.min(1, Math.max(0, s - j + 0.5)), t, puntero);
+    let lo = i, hi = i, T = 0;
+    if (local >= 0.36) { hi = i + 1; T = (local - 0.36) / 0.28; }
+    else if (local <= -0.36) { lo = i - 1; T = 0.5 + (local + 0.5) / 0.28; }
+    u.uMezcla.value = Math.min(1, Math.max(0, T));
+    u.uTipo.value = hi % 4;
+    u.uAspecto.value = innerWidth / innerHeight;
+    fijar('A', lo, Math.min(1, Math.max(0, s - lo + 0.5)), t, puntero);
+    fijar('B', hi, Math.min(1, Math.max(0, s - hi + 0.5)), t, puntero);
     textura(TOMAS[Math.max(0, Math.min(TOMAS.length - 1, i + (local >= 0 ? 2 : -2)))].img);
     const cerca = Math.round(s);
     const frec = RAYOS[cerca] || 0;

@@ -50,7 +50,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .rollo{position:fixed;inset:0;z-index:1;opacity:0;pointer-events:none;background:#000}
 .rollo video,.rollo img{width:100%;height:100%;object-fit:cover;display:block}
 .velo{position:fixed;inset:0;z-index:2;pointer-events:none;
-  background:radial-gradient(ellipse 120% 90% at 50% 42%,transparent 50%,rgba(0,0,0,.6) 100%)}
+  background:radial-gradient(ellipse 125% 95% at 50% 45%,transparent 58%,rgba(0,0,0,.32) 100%)}
 .grano{position:fixed;inset:-100px;z-index:3;pointer-events:none;opacity:.075;mix-blend-mode:overlay;
   background-size:180px 180px;animation:grano .8s steps(5) infinite}
 @keyframes grano{0%{transform:translate(0,0)}20%{transform:translate(-37px,21px)}40%{transform:translate(19px,-44px)}
@@ -105,18 +105,39 @@ main{position:relative;z-index:5}
 .premisa{margin:1.1em 0 0;max-width:32em;font-size:clamp(1.08rem,1.35vw,1.28rem);line-height:1.62;color:var(--sal-2)}
 .premisa-nota{margin:1em 0 0;max-width:32em;font:italic 400 1rem/1.5 var(--texto);color:var(--bronce)}
 
-/* escalas */
-.escala{height:230vh}
-.escala .marco::before,#premisa .marco::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(to top,rgba(0,0,0,.84) 0%,rgba(0,0,0,.45) 40%,transparent 66%),
-             linear-gradient(to right,rgba(0,0,0,.62) 0%,rgba(0,0,0,.2) 42%,transparent 60%)}
-.texto{max-width:35em;transform:translateY(calc((1 - var(--o,0)) * 18px))}
+/* escalas: la imagen primero, luego el titulo, luego el panel */
+.escala{height:260vh}
+#premisa .marco::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.72) 0%,rgba(0,0,0,.3) 45%,transparent 70%)}
+.escala .marco{display:block;position:sticky}
+.cabeza{position:absolute;opacity:var(--t,0);transform:translateY(calc((1 - var(--t,0)) * 22px));
+  text-shadow:0 2px 34px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.35)}
+.cabeza::before{content:"";position:absolute;inset:-60px -90px;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(0,0,0,.34),transparent)}
 .numeral{display:block;font:300 .82rem/1 var(--titulo);font-stretch:125%;letter-spacing:.34em;color:var(--bronce)}
-.escala h2{margin:.42em 0 .12em;font:200 clamp(2.3rem,6.4vw,6.2rem)/.94 var(--titulo);font-stretch:125%;letter-spacing:.045em;text-transform:uppercase}
-.lema{margin:0 0 .85em;font:italic 400 clamp(1.3rem,2.2vw,1.85rem)/1.2 var(--texto)}
-.relato{margin:0;font-size:clamp(1.02rem,1.25vw,1.2rem);line-height:1.62;color:var(--sal-2)}
-.clave{margin:1.1em 0 0;padding-left:1em;border-left:1px solid var(--bronce);font:italic 400 clamp(1rem,1.2vw,1.13rem)/1.55 var(--texto);color:var(--sal)}
+.escala h2{margin:.42em 0 .12em;font:200 clamp(2.4rem,7vw,7rem)/.92 var(--titulo);font-stretch:125%;letter-spacing:.045em;text-transform:uppercase}
+.lema{margin:0;font:italic 400 clamp(1.3rem,2.3vw,1.95rem)/1.2 var(--texto)}
+.panel{position:absolute;max-width:31em;padding:clamp(20px,2.4vw,32px);opacity:var(--p,0);
+  transform:translateY(calc((1 - var(--p,0)) * 26px));
+  background:rgba(6,7,9,.5);-webkit-backdrop-filter:blur(16px) saturate(1.15);backdrop-filter:blur(16px) saturate(1.15);
+  border:1px solid rgba(236,230,218,.1)}
+.relato{margin:0;font-size:clamp(1.02rem,1.2vw,1.16rem);line-height:1.62;color:rgba(236,230,218,.9)}
+.clave{margin:1em 0 0;padding-left:1em;border-left:1px solid var(--bronce);font:italic 400 clamp(1rem,1.15vw,1.1rem)/1.55 var(--texto);color:var(--sal)}
 .clave b{font:500 .64rem/1 var(--titulo);font-style:normal;font-stretch:125%;letter-spacing:.22em;color:var(--bronce);display:block;margin-bottom:.7em}
+/* composicion A: titulo abajo a la izquierda, panel a la izquierda sobre el titulo */
+.v-a .cabeza{left:var(--margen);bottom:calc(var(--barra) + clamp(28px,6vh,64px))}
+.v-a .panel{left:var(--margen);top:calc(var(--barra) + clamp(24px,6vh,60px))}
+/* composicion B: titulo arriba a la derecha, panel abajo a la derecha */
+.v-b .cabeza{right:var(--margen);top:calc(var(--barra) + clamp(24px,6vh,60px));text-align:right}
+.v-b .panel{right:var(--margen);bottom:calc(var(--barra) + clamp(24px,5vh,56px))}
+/* composicion C: titulo centrado, panel abajo al centro */
+.v-c .cabeza{left:50%;top:calc(var(--barra) + clamp(40px,12vh,130px));text-align:center;transform:translate(-50%,calc((1 - var(--t,0)) * 22px))}
+.v-c .panel{left:50%;bottom:calc(var(--barra) + clamp(24px,5vh,56px));transform:translate(-50%,calc((1 - var(--p,0)) * 26px));max-width:40em}
+/* composicion D: columna lateral solida, como una pagina de libro junto a la imagen */
+.v-d .cabeza{left:var(--margen);top:calc(var(--barra) + clamp(24px,7vh,70px))}
+.v-d .panel{right:0;top:var(--barra);bottom:var(--barra);width:min(38vw,560px);max-width:none;display:flex;flex-direction:column;justify-content:center;
+  padding:0 clamp(28px,3.5vw,56px);background:rgba(4,5,7,.82);border:0;border-left:1px solid rgba(184,147,90,.35);
+  transform:translateX(calc((1 - var(--p,0)) * 60px))}
 
 /* secciones de cierre sobre fondo oscurecido */
 .cierre{position:relative;padding:clamp(90px,16vh,170px) var(--margen);
@@ -154,9 +175,12 @@ body.sin-3d #mar{background:linear-gradient(#0a121a,#02060a)}
 }
 @media (max-width:720px){
   :root{--b-cine:12vh;--b-imax:44px}
+  .escala h2{font-size:clamp(1.9rem,8.6vw,3rem);letter-spacing:.03em;overflow-wrap:anywhere}
   .ruta{display:none}
   .tablero{justify-content:space-between}
-  .escala .marco::before{background:linear-gradient(to top,rgba(0,0,0,.86) 0%,rgba(0,0,0,.5) 48%,transparent 72%)}
+  .escala .cabeza,.v-b .cabeza,.v-c .cabeza,.v-d .cabeza{left:var(--margen);right:var(--margen);top:calc(var(--barra) + 22px);bottom:auto;text-align:left;transform:translateY(calc((1 - var(--t,0)) * 18px))}
+  .escala .panel,.v-a .panel,.v-b .panel,.v-c .panel,.v-d .panel{left:12px;right:12px;top:auto;bottom:calc(var(--barra) + 12px);width:auto;max-width:none;
+    transform:translateY(calc((1 - var(--p,0)) * 22px));display:block;padding:18px 18px 20px;background:rgba(6,7,9,.66);border:1px solid rgba(236,230,218,.1)}
   .leyenda-cantos{grid-template-columns:1fr 1fr;row-gap:18px}
   #premisa .marco{justify-content:flex-end}
   #premisa .marco::before{background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.6) 55%,transparent 80%)}
