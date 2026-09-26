@@ -57,6 +57,7 @@ function pintar() {
   });
   $$('#lista-sala > div').forEach((d, i) => { $('h3', d).textContent = T.sala[i].t; $('p', d).textContent = T.sala[i].d; });
   $('#otra-version').href = T.otraVersionUrl;
+  for (const id of ['#enlace-trailer', '#trailer-pie']) $(id).href = `media/trailer-${idioma}.mp4`;
   $('#boton-idioma').setAttribute('lang', idioma === 'es' ? 'en' : 'es');
   ultimaEtiqueta = -1;
   medir();
@@ -285,7 +286,7 @@ async function iniciar() {
   addEventListener('resize', () => { medir(); if (mundo) mundo.redimensionar(); });
   if (document.fonts) document.fonts.ready.then(medir);
   try {
-    const { crearMundo } = await import('./mundo.js');
+    const { crearMundo } = await import('./visor.js');
     mundo = crearMundo($('#mar'));
     mundo.alRayo = trueno;
   } catch (e) {

@@ -90,6 +90,8 @@ main{position:relative;z-index:5}
   padding-left:.08em;text-shadow:0 0 60px rgba(0,0,0,.6)}
 .invocacion{margin:clamp(22px,4vh,40px) auto 0;max-width:30em;font:italic 400 clamp(1.1rem,1.8vw,1.45rem)/1.5 var(--texto);color:var(--sal)}
 .fuente{margin:.9em 0 0;font:400 .9rem/1.4 var(--texto);color:var(--sal-2)}
+.trailer{display:inline-block;margin-top:clamp(18px,3vh,28px);font:450 .72rem/1 var(--titulo);font-stretch:125%;letter-spacing:.18em;color:var(--bronce);text-decoration:none;border-bottom:1px solid rgba(184,147,90,.5);padding-bottom:6px}
+.trailer:hover{border-bottom-color:var(--bronce)}
 .zarpar{margin-top:clamp(30px,7vh,70px);display:inline-flex;flex-direction:column;align-items:center;gap:14px;
   font:400 .68rem/1 var(--titulo);font-stretch:125%;letter-spacing:.2em;color:var(--sal-2)}
 .zarpar::after{content:"";width:1px;height:46px;background:linear-gradient(var(--sal),transparent);animation:bajar 2.4s var(--curva) infinite}
@@ -188,6 +190,7 @@ body.sin-3d #mar{background:linear-gradient(#0a121a,#02060a)}
       <h1 class="titulo" data-t="titulo">La Odisea</h1>
       <p class="invocacion" data-t="invocacion"></p>
       <p class="fuente" data-t="fuente"></p>
+      <a class="trailer" id="enlace-trailer" href="media/trailer-es.mp4" target="_blank" rel="noopener" data-t="trailer"></a>
       <span class="zarpar" data-t="zarpar"></span>
     </div>
   </section>
@@ -217,6 +220,7 @@ body.sin-3d #mar{background:linear-gradient(#0a121a,#02060a)}
   </section>
   <footer class="creditos">
     <p class="firma"><span data-t="hechoPor">Hecho por</span> <a href="https://x.com/teclaro" target="_blank" rel="noopener">@teclaro</a></p>
+    <p class="otra"><a id="trailer-pie" href="media/trailer-es.mp4" target="_blank" rel="noopener" data-t="trailer"></a></p>
     <p class="otra"><a id="otra-version" href="../" data-t="otraVersion"></a></p>
   </footer>
 </main>
